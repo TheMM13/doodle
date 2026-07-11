@@ -129,8 +129,11 @@ export function registerSocketHandlers(io: Server) {
       const roomId = data.roomId;
       data.roomId = null;
       try {
-        await roomManager.leaveRoom(roomId, data.userId);
+        // Leave the socket.io room first so the state broadcast triggered
+        // by roomManager.leaveRoom() below doesn't loop back to this same
+        // socket and re-populate the room it just left.
         socket.leave(roomId);
+        await roomManager.leaveRoom(roomId, data.userId);
         const room = roomManager.getById(roomId);
         if (room) broadcastState(io, room);
       } catch (err) {

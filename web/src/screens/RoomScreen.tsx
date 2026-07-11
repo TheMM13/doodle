@@ -119,8 +119,14 @@ export function RoomScreen() {
             setBrushSize={setBrushSize}
             tool={tool}
             setTool={setTool}
-            onUndo={() => sendStroke({ type: "undo" })}
-            onClear={() => sendStroke({ type: "clear" })}
+            onUndo={() => {
+              canvasRef.current?.applyRemoteStroke({ type: "undo" });
+              sendStroke({ type: "undo" });
+            }}
+            onClear={() => {
+              canvasRef.current?.applyRemoteStroke({ type: "clear" });
+              sendStroke({ type: "clear" });
+            }}
             disabled={!canDraw}
           />
         </div>
