@@ -26,6 +26,7 @@ export class Room extends EventEmitter {
   private wordChoices: string[] = [];
   private revealedIndices = new Set<number>();
   private usedWords = new Set<string>();
+  private hideLengthThisTurn = false;
   strokes: Stroke[] = [];
 
   turnEndsAt: number | null = null;
@@ -111,6 +112,7 @@ export class Room extends EventEmitter {
 
   leaveRoom(userId: string) {
     const wasDrawer = this.currentDrawerId === userId;
+    const leavingName = this.players.get(userId)?.name ?? "A player";
     this.players.delete(userId);
     this.turnOrder = this.turnOrder.filter((id) => id !== userId);
     if (this.hostUserId === userId) {
@@ -120,6 +122,7 @@ export class Room extends EventEmitter {
     if (wasDrawer && (this.status === "drawing" || this.status === "choosing_word")) {
       this.endTurn();
     }
+    this.emit("chat", { userId, name: leavingName, text: `${leavingName} left the room!`, kind: "left" });
     this.emitState();
   }
 
@@ -144,6 +147,10 @@ export class Room extends EventEmitter {
       rounds: Math.min(10, Math.max(1, partial.rounds ?? this.settings.rounds)),
       wordCount: Math.min(3, Math.max(1, partial.wordCount ?? this.settings.wordCount)),
       hints: Math.min(4, Math.max(0, partial.hints ?? this.settings.hints)),
+      gameMode:
+        partial.gameMode && ["normal", "hidden", "combination"].includes(partial.gameMode)
+          ? partial.gameMode
+          : this.settings.gameMode,
     };
     this.emitState();
   }
@@ -205,6 +212,8 @@ export class Room extends EventEmitter {
     this.currentDrawerId = drawerId;
     this.strokes = [];
     this.revealedIndices.clear();
+    this.hideLengthThisTurn =
+      this.settings.gameMode === "hidden" || (this.settings.gameMode === "combination" && Math.random() < 0.5);
     for (const p of this.players.values()) p.hasGuessedThisTurn = false;
 
     const pool = getWordBank(this.settings.customWords, this.settings.useCustomWordsOnly);
@@ -230,6 +239,9 @@ export class Room extends EventEmitter {
     this.status = "drawing";
     this.turnEndsAt = Date.now() + this.settings.drawTimeSec * 1000;
     this.scheduleHints();
+
+    const drawerName = this.players.get(userId)?.name ?? "The drawer";
+    this.emit("chat", { userId, name: drawerName, text: `${drawerName} is drawing now!`, kind: "drawing" });
     this.emitState();
 
     this.drawTimer = setTimeout(() => this.endTurn(), this.settings.drawTimeSec * 1000);
@@ -308,7 +320,7 @@ export class Room extends EventEmitter {
       const drawer = this.currentDrawerId ? this.players.get(this.currentDrawerId) : null;
       if (drawer) drawer.score += drawerPointsForGuess(points);
 
-      this.emit("chat", { userId, name: player.name, text: `${player.name} guessed the word!`, kind: "system" });
+      this.emit("chat", { userId, name: player.name, text: `${player.name} guessed the word!`, kind: "guessed" });
       this.emit("privateMessage", { toUserId: userId, kind: "correct", text: `You guessed it! +${points}`, points });
       this.emitState();
 
@@ -340,14 +352,13 @@ export class Room extends EventEmitter {
     const threshold = Math.ceil(this.connectedCount() / 2);
     if (votes.size >= threshold) {
       this.kickVotes.delete(targetUserId);
-      this.emit("chat", { userId: "system", name: "System", text: `Player was voted out of the room.`, kind: "system" });
-      this.leaveRoom(targetUserId);
+      this.leaveRoom(targetUserId); // emits its own "left the room" chat message
     } else {
       this.emit("chat", {
         userId: "system",
         name: "System",
         text: `Vote to kick: ${votes.size}/${threshold}`,
-        kind: "system",
+        kind: "kick",
       });
     }
   }
@@ -360,6 +371,9 @@ export class Room extends EventEmitter {
       word,
       scores: [...this.players.values()].map((p) => ({ userId: p.userId, name: p.name, score: p.score })),
     });
+    if (word) {
+      this.emit("chat", { userId: "system", name: "System", text: `The word was '${word}'`, kind: "reveal" });
+    }
     this.currentWord = null;
     this.emitState();
     this.roundEndTimer = setTimeout(() => this.nextTurn(), ROUND_END_PAUSE_MS);
@@ -377,8 +391,18 @@ export class Room extends EventEmitter {
     this.emitState();
   }
 
+  // In "hidden" (or a "combination" turn that rolled hidden), unrevealed
+  // letters are omitted entirely rather than shown as underscores, so
+  // guessers can't infer the word's length from the blank count -- only
+  // hint-revealed letters appear, in order.
   private maskedWord(): string | null {
     if (!this.currentWord) return null;
+    if (this.hideLengthThisTurn) {
+      return [...this.currentWord]
+        .map((c, i) => (c !== " " && this.revealedIndices.has(i) ? c : null))
+        .filter((c): c is string => c !== null)
+        .join("");
+    }
     return [...this.currentWord]
       .map((c, i) => (c === " " ? " " : this.revealedIndices.has(i) ? c : "_"))
       .join("");
@@ -388,6 +412,7 @@ export class Room extends EventEmitter {
     const isDrawer = userId === this.currentDrawerId;
     const me = this.players.get(userId);
     const revealWord = isDrawer || this.status === "round_end" || this.status === "game_end" || (me?.hasGuessedThisTurn ?? false);
+    const trueWordLength = this.currentWord?.replace(/ /g, "").length ?? 0;
 
     return {
       roomId: this.id,
@@ -401,7 +426,10 @@ export class Room extends EventEmitter {
       isYourTurnToChoose: isDrawer && this.status === "choosing_word",
       wordChoices: isDrawer && this.status === "choosing_word" ? this.wordChoices : [],
       word: revealWord ? this.currentWord : this.maskedWord(),
-      wordLength: this.currentWord?.replace(/ /g, "").length ?? 0,
+      wordRevealed: revealWord,
+      // Withheld (not just hidden in the UI) while a hidden-mode turn hasn't
+      // been revealed yet, so the length can't be read off the network payload.
+      wordLength: revealWord || !this.hideLengthThisTurn ? trueWordLength : 0,
       turnEndsAt: this.turnEndsAt,
       chooseEndsAt: this.chooseEndsAt,
       players: [...this.players.values()]

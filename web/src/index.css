@@ -327,7 +327,7 @@ button {
 .player-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: #fff;
   border: 2px solid var(--panel-border);
   padding: 8px 10px;
@@ -337,8 +337,20 @@ button {
   border-color: var(--yellow);
   background: #fffbe9;
 }
+.player-guessed {
+  border-color: var(--green);
+  background: #e9f9ea;
+}
 .player-disconnected {
   opacity: 0.5;
+}
+.player-rank {
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #6a889b;
+  min-width: 20px;
+  flex-shrink: 0;
 }
 .player-avatar {
   width: 36px;
@@ -377,17 +389,21 @@ button {
   color: var(--yellow);
   filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2));
 }
+.player-you {
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+.player-points {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-dark);
+  display: block;
+}
 .player-away {
   font-size: 10px;
   color: #b23b3b;
   font-weight: 700;
   display: block;
-}
-.player-score {
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--blue-dark);
-  font-family: "Baloo 2", sans-serif;
 }
 .kick-btn {
   font-size: 11px;
@@ -417,21 +433,49 @@ button {
 }
 .word-banner {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: 16px;
   background: var(--panel);
   border: 3px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
-  padding: 10px 24px;
-  min-width: 260px;
+  padding: 10px 20px;
+  width: 100%;
+}
+.word-banner-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.timer-badge {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--blue);
+  border: 3px solid var(--blue-dark);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .word-round {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   color: #6a889b;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+.word-banner-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
 }
 .word-display {
   font-family: "Baloo 2", sans-serif;
@@ -439,16 +483,12 @@ button {
   font-weight: 700;
   letter-spacing: 4px;
   color: var(--ink);
+  position: relative;
 }
-.word-timer {
-  font-family: "Baloo 2", sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  color: #fff;
-  background: var(--blue);
-  border-radius: 999px;
-  padding: 2px 14px;
-  margin-top: 2px;
+.word-length-badge {
+  font-size: 13px;
+  color: var(--blue-dark);
+  margin-left: 2px;
 }
 .word-drawer {
   font-size: 11px;
@@ -548,19 +588,16 @@ button {
   gap: 8px;
   flex-wrap: wrap;
 }
-.size-btn {
+.size-cycle-btn {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #fff;
-  border: 2px solid var(--panel-border);
+  background: #eaf6ff;
+  border: 2px solid var(--blue);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.size-btn-active {
-  border-color: var(--blue);
-  background: #eaf6ff;
+  flex-shrink: 0;
 }
 .size-dot {
   border-radius: 50%;
@@ -609,10 +646,24 @@ button {
   font-weight: 800;
   color: var(--blue-dark);
 }
-.chat-system {
+.chat-kind-chat { color: var(--ink); }
+.chat-kind-system,
+.chat-kind-guessed,
+.chat-kind-reveal {
   color: var(--green-dark);
   font-weight: 700;
-  font-style: normal;
+}
+.chat-kind-drawing {
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+.chat-kind-kick {
+  color: #a6720a;
+  font-weight: 700;
+}
+.chat-kind-left {
+  color: #b23b3b;
+  font-weight: 700;
 }
 .chat-input-row {
   display: flex;
@@ -772,6 +823,31 @@ button {
   font-family: inherit;
   resize: vertical;
 }
+.game-mode-row {
+  display: flex;
+  gap: 6px;
+}
+.game-mode-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: #eef6ff;
+  border: 2px solid var(--panel-border);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.game-mode-btn-active {
+  background: var(--blue);
+  border-color: var(--blue-dark);
+  color: #fff;
+}
+.game-mode-hint {
+  font-size: 11px;
+  color: #6a889b;
+  margin: 0;
+  text-align: center;
+}
 .modal-btn-row {
   display: flex;
   gap: 10px;
@@ -782,11 +858,140 @@ button {
   flex: 1;
 }
 
+/* Phones: everything fits in the viewport, no page scroll -- canvas up
+   top, players + chat split side by side underneath (each scrolls
+   internally), matching skribbl.io's mobile layout. */
 @media (max-width: 900px) {
+  .screen.game-screen {
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 8px;
+    gap: 8px;
+    overflow: hidden;
+  }
+  .word-banner {
+    flex-shrink: 0;
+    padding: 3px 12px;
+    min-width: 0;
+    width: 100%;
+    gap: 10px;
+  }
+  .timer-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    border-width: 2px;
+  }
+  .word-round {
+    font-size: 9px;
+  }
+  .word-display {
+    font-size: 17px;
+    letter-spacing: 1px;
+  }
+  .word-drawer {
+    font-size: 10px;
+    margin-top: 0;
+  }
+  .leave-floating {
+    top: 8px;
+    right: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
   .game-body {
-    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "canvas canvas"
+      "players chat"
+      "input input";
+    gap: 6px;
+    width: 100%;
+  }
+  .canvas-area {
+    grid-area: canvas;
+    padding: 6px;
+    gap: 4px;
+    flex: none;
+    min-width: 0;
+  }
+  /* Narrower than the column so the canvas (locked to its 4:3 aspect
+     ratio) renders shorter too, leaving more vertical room for the
+     players/chat row below without distorting the drawing. */
+  .drawing-canvas {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .toolbar {
+    padding: 4px;
+    gap: 3px;
+  }
+  .palette {
+    flex-wrap: nowrap;
+    gap: 2px;
+  }
+  .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .toolbar-row {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  .size-cycle-btn {
+    width: 24px;
+    height: 24px;
+  }
+  .tool-btn {
+    padding: 5px 7px;
+    font-size: 10px;
+    flex-shrink: 1;
   }
   .players-column {
-    max-height: 200px;
+    grid-area: players;
+    flex: none;
+    min-width: 0;
+    max-height: none;
+    padding: 8px;
+  }
+  /* The chat messages list sits in the "chat" cell next to players, but the
+     guess input becomes its own full-width bar spanning both columns below
+     -- so the two normally-nested wrappers hand off their grid placement
+     directly to their children instead of being grid items themselves. */
+  .chat-column,
+  .chat-box {
+    display: contents;
+  }
+  .chat-messages {
+    grid-area: chat;
+    min-height: 0;
+    background: var(--panel);
+    border: 3px solid var(--panel-border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+  .chat-input-row {
+    grid-area: input;
+    border-top: none;
+    background: var(--panel);
+    border: 3px solid var(--panel-border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .player-row {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .player-avatar {
+    width: 28px;
+    height: 28px;
   }
 }

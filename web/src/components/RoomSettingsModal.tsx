@@ -1,5 +1,11 @@
 import { useState } from "react";
-import type { RoomSettings } from "../game/types";
+import type { RoomSettings, GameMode } from "../game/types";
+
+const GAME_MODES: { value: GameMode; label: string; hint: string }[] = [
+  { value: "normal", label: "Normal", hint: "Word length shown as blanks" },
+  { value: "hidden", label: "Hidden", hint: "Word length is hidden" },
+  { value: "combination", label: "Combination", hint: "Randomly mixes normal & hidden each turn" },
+];
 
 interface Props {
   visible: boolean;
@@ -41,6 +47,20 @@ export function RoomSettingsModal({ visible, settings, onClose, onSave }: Props)
         <Stepper label="Rounds" value={draft.rounds} min={1} max={10} step={1} onChange={(v) => setDraft({ ...draft, rounds: v })} />
         <Stepper label="Word count" value={draft.wordCount} min={1} max={3} step={1} onChange={(v) => setDraft({ ...draft, wordCount: v })} />
         <Stepper label="Hints" value={draft.hints} min={0} max={4} step={1} onChange={(v) => setDraft({ ...draft, hints: v })} />
+        <label className="settings-label">Game mode</label>
+        <div className="game-mode-row">
+          {GAME_MODES.map((m) => (
+            <button
+              key={m.value}
+              className={`game-mode-btn ${draft.gameMode === m.value ? "game-mode-btn-active" : ""}`}
+              onClick={() => setDraft({ ...draft, gameMode: m.value })}
+              title={m.hint}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        <p className="game-mode-hint">{GAME_MODES.find((m) => m.value === draft.gameMode)?.hint}</p>
         <label className="settings-label">Custom words (comma separated)</label>
         <textarea
           className="settings-textarea"

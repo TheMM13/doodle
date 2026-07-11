@@ -12,7 +12,14 @@ interface Props {
   disabled: boolean;
 }
 
+const SIZE_ORDER: number[] = [BRUSH_SIZES.small, BRUSH_SIZES.medium, BRUSH_SIZES.large];
+
 export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setTool, onUndo, onClear, disabled }: Props) {
+  const cycleBrushSize = () => {
+    const idx = SIZE_ORDER.indexOf(brushSize);
+    setBrushSize(SIZE_ORDER[(idx + 1) % SIZE_ORDER.length]);
+  };
+
   return (
     <div className={`toolbar ${disabled ? "toolbar-disabled" : ""}`}>
       <div className="palette">
@@ -27,16 +34,9 @@ export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setToo
         ))}
       </div>
       <div className="toolbar-row">
-        {(["small", "medium", "large"] as const).map((s) => (
-          <button
-            key={s}
-            className={`size-btn ${brushSize === BRUSH_SIZES[s] ? "size-btn-active" : ""}`}
-            onClick={() => setBrushSize(BRUSH_SIZES[s])}
-            disabled={disabled}
-          >
-            <span className="size-dot" style={{ width: BRUSH_SIZES[s], height: BRUSH_SIZES[s] }} />
-          </button>
-        ))}
+        <button className="size-cycle-btn" onClick={cycleBrushSize} disabled={disabled} title="Brush size">
+          <span className="size-dot" style={{ width: brushSize, height: brushSize }} />
+        </button>
         <button className={`tool-btn ${tool === "eraser" ? "tool-btn-active" : ""}`} onClick={() => setTool(tool === "eraser" ? "pen" : "eraser")} disabled={disabled}>
           Eraser
         </button>

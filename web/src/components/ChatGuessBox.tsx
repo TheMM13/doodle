@@ -26,7 +26,7 @@ export function ChatGuessBox({ messages, onSend, disabledPlaceholder }: Props) {
     <div className="chat-box">
       <div className="chat-messages" ref={scrollRef}>
         {messages.map((m, i) => (
-          <div key={i} className={`chat-line ${m.kind === "system" ? "chat-system" : ""}`}>
+          <div key={i} className={`chat-line chat-kind-${m.kind}`}>
             {m.kind === "chat" ? <span className="chat-name">{m.name}: </span> : null}
             {m.text}
           </div>

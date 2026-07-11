@@ -92,6 +92,8 @@ export function RoomScreen() {
     <div className="screen room-screen game-screen">
       <WordBanner
         word={room.status === "drawing" || room.status === "round_end" ? room.word : null}
+        wordRevealed={room.wordRevealed}
+        wordLength={room.wordLength}
         round={room.round}
         totalRounds={room.totalRounds}
         endsAt={room.turnEndsAt}

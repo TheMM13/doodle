@@ -80,7 +80,8 @@ again, avatar customization, vote-kick, Google/guest auth, and disconnect-and-re
 Simplified vs. a literal skribbl.io clone: the "fill bucket" fills the whole canvas rather than
 doing a true region flood-fill (skribbl's canvas is raster-based server-side; this app streams
 vector strokes, which don't support region fill without a lot of extra plumbing); the word list
-is an original ~250-word bank rather than skribbl's actual compiled list; there's no
+is an original ~750-word bank (comparable in size and category breadth to skribbl's default
+list) rather than skribbl's actual compiled list; there's no
 localization (English only); and profanity filtering isn't implemented.
 
 ## Deployment (Render)

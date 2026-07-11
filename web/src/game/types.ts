@@ -49,6 +49,7 @@ export interface RoomState {
   isYourTurnToChoose: boolean;
   wordChoices: string[];
   word: string | null;
+  wordRevealed: boolean;
   wordLength: number;
   turnEndsAt: number | null;
   chooseEndsAt: number | null;
@@ -56,11 +57,13 @@ export interface RoomState {
   strokes: Stroke[];
 }
 
+export type ChatKind = "chat" | "system" | "guessed" | "reveal" | "drawing" | "kick" | "left" | "correct" | "close";
+
 export interface ChatMessage {
   userId: string;
   name: string;
   text: string;
-  kind: "chat" | "system" | "correct" | "close";
+  kind: ChatKind;
   ts: number;
 }
 

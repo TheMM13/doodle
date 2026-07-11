@@ -50,11 +50,13 @@ export interface Stroke {
   size?: number;
 }
 
+export type ChatKind = "chat" | "system" | "guessed" | "reveal" | "drawing" | "kick" | "left" | "correct" | "close";
+
 export interface ChatMessage {
   id: string;
   userId: string;
   name: string;
   text: string;
-  kind: "chat" | "system" | "correct" | "close";
+  kind: ChatKind;
   ts: number;
 }

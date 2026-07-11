@@ -11,8 +11,12 @@ export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props)
   const sorted = [...players].sort((a, b) => b.score - a.score);
   return (
     <div className="player-list">
-      {sorted.map((p) => (
-        <div key={p.userId} className={`player-row ${!p.isConnected ? "player-disconnected" : ""} ${p.isDrawing ? "player-drawing" : ""}`}>
+      {sorted.map((p, i) => (
+        <div
+          key={p.userId}
+          className={`player-row ${!p.isConnected ? "player-disconnected" : ""} ${p.isDrawing ? "player-drawing" : ""} ${p.hasGuessed ? "player-guessed" : ""}`}
+        >
+          <span className="player-rank">#{i + 1}</span>
           <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
             <span className="player-avatar-face">{AVATAR_FACES[p.avatar.face % FACE_COUNT]}</span>
             {p.avatar.hat > 0 && <span className="player-avatar-hat">{AVATAR_HATS[p.avatar.hat % HAT_COUNT]}</span>}
@@ -21,12 +25,12 @@ export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props)
             <span className="player-name">
               {p.userId === hostUserId ? <span className="player-crown">★</span> : null}
               {p.name}
+              {p.userId === meUserId ? <span className="player-you"> (You)</span> : null}
               {p.isDrawing ? " ✏️" : ""}
-              {p.hasGuessed ? " ✅" : ""}
             </span>
+            <span className="player-points">{p.score} points</span>
             {!p.isConnected && <span className="player-away">disconnected – seat held</span>}
           </div>
-          <span className="player-score">{p.score}</span>
           {onKickVote && p.userId !== meUserId && (
             <button className="kick-btn" onClick={() => onKickVote(p.userId)}>
               kick
