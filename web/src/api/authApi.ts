@@ -22,10 +22,6 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return data as T;
 }
 
-export function loginWithGoogleIdToken(idToken: string) {
-  return post<AuthResponse>("/auth/google", { idToken });
-}
-
 export function loginAsGuest(name: string) {
   return post<AuthResponse>("/auth/guest", { name });
 }

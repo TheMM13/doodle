@@ -2,6 +2,7 @@ import { EventEmitter } from "node:events";
 import { RoomSettings, RoomStatus, Player, Avatar, Stroke } from "./types.js";
 import { getWordBank, pickWordChoices } from "./words.js";
 import { guesserPoints, drawerPointsForGuess, isCloseGuess } from "./scoring.js";
+import { sanitizeSettings } from "./settings.js";
 
 const CHOOSE_WORD_MS = 15_000;
 const ROUND_END_PAUSE_MS = 5_000;
@@ -105,7 +106,12 @@ export class Room extends EventEmitter {
       if (nextHost) this.hostUserId = nextHost.userId;
     }
 
-    if (this.currentDrawerId === userId) {
+    if (this.status !== "lobby" && this.connectedCount() === 0) {
+      // Nobody is watching -- stop the game timers instead of letting turns
+      // rotate in an empty room until its cleanup TTL. Seats/scores are kept
+      // so anyone who reconnects lands back in the lobby with their seat.
+      this.stopGame("Game stopped — no players connected.");
+    } else if (this.currentDrawerId === userId) {
       if (this.status === "drawing" || this.status === "choosing_word") {
         this.endTurn();
       }
@@ -126,10 +132,30 @@ export class Room extends EventEmitter {
       const nextHost = [...this.players.values()].sort((a, b) => a.joinOrder - b.joinOrder)[0];
       if (nextHost) this.hostUserId = nextHost.userId;
     }
-    if (wasDrawer && (this.status === "drawing" || this.status === "choosing_word")) {
+    this.emit("chat", { userId, name: leavingName, text: `${leavingName} left the room!`, kind: "left" });
+    if (this.status !== "lobby" && this.players.size < 2) {
+      // A drawing game with one person in it isn't a game.
+      this.stopGame("Not enough players — back to the lobby.");
+    } else if (wasDrawer && (this.status === "drawing" || this.status === "choosing_word")) {
       this.endTurn();
     }
-    this.emit("chat", { userId, name: leavingName, text: `${leavingName} left the room!`, kind: "left" });
+    this.emitState();
+  }
+
+  // Aborts an in-progress game back to the lobby (e.g. everyone else left).
+  // Unlike endGame this isn't a result -- no podium, scores just freeze until
+  // the next start resets them.
+  private stopGame(reason: string) {
+    this.clearTimers();
+    this.status = "lobby";
+    this.currentDrawerId = null;
+    this.currentWord = null;
+    this.turnEndsAt = null;
+    this.chooseEndsAt = null;
+    this.strokes = [];
+    this.currentRound = 0;
+    this.currentDrawerIdx = -1;
+    this.emit("chat", { userId: "system", name: "System", text: reason, kind: "system" });
     this.emitState();
   }
 
@@ -146,19 +172,10 @@ export class Room extends EventEmitter {
   updateSettings(requesterId: string, partial: Partial<RoomSettings>) {
     if (requesterId !== this.hostUserId) throw new RoomError("Only the host can change settings");
     if (this.status !== "lobby") throw new RoomError("Cannot change settings while a game is in progress");
-    this.settings = {
-      ...this.settings,
-      ...partial,
-      maxPlayers: Math.max(this.players.size, Math.min(12, partial.maxPlayers ?? this.settings.maxPlayers)),
-      drawTimeSec: Math.min(240, Math.max(30, partial.drawTimeSec ?? this.settings.drawTimeSec)),
-      rounds: Math.min(10, Math.max(1, partial.rounds ?? this.settings.rounds)),
-      wordCount: Math.min(3, Math.max(1, partial.wordCount ?? this.settings.wordCount)),
-      hints: Math.min(4, Math.max(0, partial.hints ?? this.settings.hints)),
-      gameMode:
-        partial.gameMode && ["normal", "hidden", "combination"].includes(partial.gameMode)
-          ? partial.gameMode
-          : this.settings.gameMode,
-    };
+    const sanitized = sanitizeSettings(this.settings, partial);
+    // Never shrink capacity below the people already seated.
+    sanitized.maxPlayers = Math.max(this.players.size, sanitized.maxPlayers);
+    this.settings = sanitized;
     this.emitState();
   }
 
@@ -294,7 +311,10 @@ export class Room extends EventEmitter {
 
   handleGuess(userId: string, rawText: string): void {
     const player = this.players.get(userId);
-    const text = rawText.trim();
+    if (typeof rawText !== "string") return;
+    // Cap length server-side: every chat line is rebroadcast to the whole
+    // room, so an unbounded string is a cheap amplification lever.
+    const text = rawText.slice(0, 200).trim();
     if (!text) return;
 
     const canGuess =

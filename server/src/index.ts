@@ -14,8 +14,11 @@ process.on("unhandledRejection", (err) => {
 });
 
 const app = express();
+// Behind Render's proxy the real client IP arrives in X-Forwarded-For;
+// without this, per-IP rate limiting would throttle the proxy instead.
+app.set("trust proxy", 1);
 app.use(cors({ origin: env.clientOrigin }));
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
 app.use("/auth", authRouter);

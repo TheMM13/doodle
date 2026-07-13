@@ -11,6 +11,58 @@ interface SocketData {
   roomId: string | null;
 }
 
+const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+// Everything a client sends over the socket is untrusted. Strokes and
+// avatars in particular get stored in room state and rebroadcast to every
+// player, so oversized or malformed values are an amplification lever.
+function sanitizeStroke(raw: unknown): Stroke | null {
+  if (!raw || typeof raw !== "object") return null;
+  const s = raw as Record<string, unknown>;
+  if (typeof s.type !== "string" || !["start", "draw", "end", "fill", "clear", "undo"].includes(s.type)) return null;
+  const clean: Stroke = { type: s.type as Stroke["type"] };
+  if (s.x !== undefined) {
+    if (typeof s.x !== "number" || !Number.isFinite(s.x) || s.x < -50 || s.x > 2050) return null;
+    clean.x = Math.round(s.x);
+  }
+  if (s.y !== undefined) {
+    if (typeof s.y !== "number" || !Number.isFinite(s.y) || s.y < -50 || s.y > 2050) return null;
+    clean.y = Math.round(s.y);
+  }
+  if (s.color !== undefined) {
+    if (typeof s.color !== "string" || !HEX_COLOR.test(s.color)) return null;
+    clean.color = s.color;
+  }
+  if (s.size !== undefined) {
+    if (typeof s.size !== "number" || !Number.isFinite(s.size)) return null;
+    clean.size = Math.min(60, Math.max(1, Math.round(s.size)));
+  }
+  return clean;
+}
+
+function sanitizeAvatar(raw: unknown): Avatar {
+  const a = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  return {
+    face: Number.isInteger(a.face) ? Math.min(7, Math.max(0, a.face as number)) : 0,
+    hat: Number.isInteger(a.hat) ? Math.min(5, Math.max(0, a.hat as number)) : 0,
+    color: typeof a.color === "string" && HEX_COLOR.test(a.color) ? a.color : "#5aa9e6",
+  };
+}
+
+// Fixed-window rate limiter, one instance per socket per event family.
+function makeLimiter(max: number, windowMs: number) {
+  let count = 0;
+  let windowStart = 0;
+  return () => {
+    const now = Date.now();
+    if (now - windowStart > windowMs) {
+      windowStart = now;
+      count = 0;
+    }
+    return ++count <= max;
+  };
+}
+
 function broadcastState(io: Server, room: Room) {
   const sockets = io.sockets.adapter.rooms.get(room.id);
   if (!sockets) return;
@@ -82,17 +134,23 @@ export function registerSocketHandlers(io: Server) {
 
   io.on("connection", (socket: Socket) => {
     const data = socket.data as SocketData;
+    const allowCreate = makeLimiter(5, 60_000);
+    const allowJoin = makeLimiter(20, 60_000);
+    const allowGuess = makeLimiter(6, 2_000);
+    const allowStroke = makeLimiter(800, 2_000);
 
-    socket.on("room:create", async (payload: { isPrivate?: boolean; settings?: Partial<RoomSettings>; avatar: Avatar }, ack) => {
+    socket.on("room:create", async (payload: { isPrivate?: boolean; settings?: Partial<RoomSettings>; avatar?: Avatar }, ack) => {
+      if (!allowCreate()) return ack?.({ ok: false, error: "Slow down — too many rooms created" });
       try {
-        const room = await roomManager.createRoom(data.userId, payload.isPrivate ?? true, payload.settings ?? {});
+        const avatar = sanitizeAvatar(payload?.avatar);
+        const room = await roomManager.createRoom(data.userId, payload?.isPrivate ?? true, payload?.settings ?? {});
         wireRoomEvents(io, room);
-        const { player } = room.addOrReconnectPlayer(data.userId, data.name, payload.avatar, socket.id);
+        const { player } = room.addOrReconnectPlayer(data.userId, data.name, avatar, socket.id);
         await query(
           `INSERT INTO room_players (room_id, user_id, join_order, score, is_connected, avatar)
            VALUES ($1,$2,$3,$4,TRUE,$5)
            ON CONFLICT (room_id, user_id) DO UPDATE SET is_connected = TRUE, disconnected_at = NULL`,
-          [room.id, data.userId, player.joinOrder, player.score, JSON.stringify(payload.avatar)]
+          [room.id, data.userId, player.joinOrder, player.score, JSON.stringify(avatar)]
         );
         data.roomId = room.id;
         socket.join(room.id);
@@ -103,9 +161,14 @@ export function registerSocketHandlers(io: Server) {
       }
     });
 
-    socket.on("room:join", async (payload: { code: string; avatar: Avatar }, ack) => {
+    socket.on("room:join", async (payload: { code?: string; avatar?: Avatar }, ack) => {
+      if (!allowJoin()) return ack?.({ ok: false, error: "Slow down — too many join attempts" });
+      if (typeof payload?.code !== "string" || payload.code.length > 12) {
+        return ack?.({ ok: false, error: "Invalid room code" });
+      }
       try {
-        const { room, resumed } = await roomManager.joinRoom(payload.code, data.userId, data.name, payload.avatar, socket.id);
+        const avatar = sanitizeAvatar(payload.avatar);
+        const { room, resumed } = await roomManager.joinRoom(payload.code, data.userId, data.name, avatar, socket.id);
         wireRoomEvents(io, room);
         data.roomId = room.id;
         socket.join(room.id);
@@ -163,22 +226,29 @@ export function registerSocketHandlers(io: Server) {
       }
     });
 
-    socket.on("game:chooseWord", (payload: { word: string }) => {
+    socket.on("game:chooseWord", (payload: { word?: string }) => {
+      if (typeof payload?.word !== "string" || payload.word.length > 64) return;
       const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
       room?.chooseWord(data.userId, payload.word);
     });
 
-    socket.on("game:stroke", (stroke: Stroke) => {
+    socket.on("game:stroke", (raw: unknown) => {
+      if (!allowStroke()) return;
+      const stroke = sanitizeStroke(raw);
+      if (!stroke) return;
       const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
       room?.handleStroke(data.userId, stroke);
     });
 
-    socket.on("game:guess", (payload: { text: string }) => {
+    socket.on("game:guess", (payload: { text?: string }) => {
+      if (!allowGuess()) return;
+      if (typeof payload?.text !== "string") return;
       const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
       room?.handleGuess(data.userId, payload.text);
     });
 
-    socket.on("game:kickVote", (payload: { targetUserId: string }) => {
+    socket.on("game:kickVote", (payload: { targetUserId?: string }) => {
+      if (typeof payload?.targetUserId !== "string" || payload.targetUserId.length > 64) return;
       const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
       room?.kickVote(data.userId, payload.targetUserId);
     });

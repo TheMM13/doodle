@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { type AuthUser, loginAsGuest, loginWithGoogleIdToken } from "../api/authApi";
+import { type AuthUser, loginAsGuest } from "../api/authApi";
 
 const TOKEN_KEY = "doodle_token";
 const USER_KEY = "doodle_user";
@@ -9,7 +9,6 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   loginGuest: (name: string) => Promise<void>;
-  loginGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -35,11 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persist(res.token, res.user);
   }, [persist]);
 
-  const loginGoogle = useCallback(async (idToken: string) => {
-    const res = await loginWithGoogleIdToken(idToken);
-    persist(res.token, res.user);
-  }, [persist]);
-
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -60,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ token, user, loading, loginGuest, loginGoogle, logout }}>
+    <AuthContext.Provider value={{ token, user, loading, loginGuest, logout }}>
       {children}
     </AuthContext.Provider>
   );

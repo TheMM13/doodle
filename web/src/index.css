@@ -569,7 +569,7 @@ button {
 }
 .drawing-canvas {
   width: 100%;
-  aspect-ratio: 800 / 600;
+  aspect-ratio: 1000 / 600;
   background: #fff;
   touch-action: none;
   display: block;
@@ -953,8 +953,10 @@ button {
   /* Narrower than the column so the canvas (locked to its 4:3 aspect
      ratio) renders shorter too, leaving more vertical room for the
      players/chat row below without distorting the drawing. */
+  /* The wider 1000x600 logical canvas is already short enough at full
+     width on phones -- no need to shrink it like the old 4:3 canvas. */
   .drawing-canvas {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
   }
   .toolbar {

@@ -10,7 +10,6 @@ export const env = {
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: required("DATABASE_URL"),
   jwtSecret: required("JWT_SECRET"),
-  googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
   clientOrigin: process.env.CLIENT_ORIGIN ?? "*",
   reconnectGraceMs: Number(process.env.RECONNECT_GRACE_MS ?? 120_000),
 };

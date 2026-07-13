@@ -1,29 +1,13 @@
-import React, { useState, useCallback } from "react";
+import { useState, type FormEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { GoogleSignInButton } from "../components/GoogleSignInButton";
 
 export function LoginScreen() {
-  const { loginGuest, loginGoogle } = useAuth();
+  const { loginGuest } = useAuth();
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onGoogleToken = useCallback(
-    async (idToken: string) => {
-      setBusy(true);
-      setError(null);
-      try {
-        await loginGoogle(idToken);
-      } catch (e: any) {
-        setError(e.message ?? String(e));
-      } finally {
-        setBusy(false);
-      }
-    },
-    [loginGoogle]
-  );
-
-  const submitGuest = async (e: React.FormEvent) => {
+  const submitGuest = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setBusy(true);
@@ -42,10 +26,6 @@ export function LoginScreen() {
       <h1 className="logo">doodle.io</h1>
       <p className="subtitle">Draw. Guess. Win.</p>
 
-      <GoogleSignInButton onToken={onGoogleToken} />
-
-      <div className="divider" />
-
       <form onSubmit={submitGuest} className="guest-form">
         <input
           className="text-input"
@@ -55,7 +35,7 @@ export function LoginScreen() {
           maxLength={20}
         />
         <button className="primary-btn" disabled={busy || !name.trim()} type="submit">
-          {busy ? "Signing in..." : "Play as Guest"}
+          {busy ? "Signing in..." : "Play!"}
         </button>
       </form>
       {error && <p className="error-text">{error}</p>}

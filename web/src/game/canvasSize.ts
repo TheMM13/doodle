@@ -1,4 +1,4 @@
-export const CANVAS_W = 800;
+export const CANVAS_W = 1000;
 export const CANVAS_H = 600;
 
 export const BRUSH_SIZES = { small: 4, medium: 10, large: 20 } as const;

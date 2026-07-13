@@ -11,10 +11,6 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: VITE_GOOGLE_CLIENT_ID
-        sync: false
       - key: CLIENT_ORIGIN
         value: "*"
       - key: RECONNECT_GRACE_MS

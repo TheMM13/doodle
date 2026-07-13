@@ -3,7 +3,7 @@
 A real-time drawing & guessing web app that follows skribbl.io's rules and flow: rooms with a
 shareable code, host-configurable settings, turn-based drawing with word choices, live stroke
 broadcasting, timed rounds, hints, close-guess detection, scoring, and a final leaderboard.
-Sign-in is via Google (or a guest nickname), and a player who disconnects unexpectedly (dropped
+Players sign in with just a nickname, and a player who disconnects unexpectedly (dropped
 network, closed tab, killed browser) keeps their seat and score and resumes exactly where they
 left off when they reconnect. Installable as a PWA (Add to Home Screen) on phones.
 
@@ -24,7 +24,7 @@ drawer earns points as people guess), not a byte-for-byte reverse engineering.
 
 ```bash
 cd server
-cp .env.example .env    # then fill in DATABASE_URL, JWT_SECRET, GOOGLE_CLIENT_ID
+cp .env.example .env    # then fill in DATABASE_URL and JWT_SECRET
 npm install
 npm run db:migrate      # creates tables in your Postgres database
 npm run dev             # starts on :4000
@@ -35,18 +35,7 @@ You need a real Postgres database. The easiest options are a free tier on
 give you and put it in `DATABASE_URL`. Without it, the server still boots (health check works)
 but anything account/room related will fail.
 
-## 2. Google Sign-In setup
-
-1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an OAuth
-   2.0 Client ID of type **Web application**.
-2. Add every origin you'll load the app from to "Authorized JavaScript origins" — e.g.
-   `http://localhost:5173` for local dev, and your deployed URL once you have one.
-3. Put the client ID in `server/.env` as `GOOGLE_CLIENT_ID` (the server verifies tokens against
-   this audience) and in `web/.env` as `VITE_GOOGLE_CLIENT_ID` (same value, both places).
-4. Until you set these, the "Sign in with Google" button shows a disabled hint instead — guest
-   nickname login still works so you can test everything else.
-
-## 3. Web app setup
+## 2. Web app setup
 
 ```bash
 cd web
@@ -76,7 +65,8 @@ with auto-pick timeout, live stroke streaming, color palette, brush sizes, erase
 flood-fill bucket (bounded by drawn lines, undoable, replayed on reconnect), undo/clear, hint
 letter reveals, correct/close-guess detection (with spoiler-safe chat routing for the drawer
 and players who've already guessed), scoring, round/game-end scoreboards, play again, avatar
-customization, vote-kick, Google/guest auth, and disconnect-and-resume.
+customization, vote-kick, nickname (guest) auth, disconnect-and-resume, and basic abuse
+protection (server-side input validation and rate limiting on auth, chat, and room churn).
 
 Simplified vs. a literal skribbl.io clone: the word list is an original ~750-word bank
 (comparable in size and category breadth to skribbl's default list) rather than skribbl's
@@ -104,15 +94,11 @@ serves the built frontend itself alongside the API/WebSocket — one URL, no COR
    - `DATABASE_URL` — your Neon/Supabase connection string (the same one from local dev works,
      or create a fresh database for production).
    - `JWT_SECRET` — generate a new one: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-   - `GOOGLE_CLIENT_ID` / `VITE_GOOGLE_CLIENT_ID` — same Google OAuth client ID in both, optional
-     (leave blank to ship with guest login only).
 4. **Run migrations against the production database** once, from your machine:
    ```bash
    cd server
    DATABASE_URL="<production-connection-string>" npm run db:migrate
    ```
-5. Once deployed, add the Render URL (`https://<service-name>.onrender.com`) to the Google OAuth
-   client's Authorized JavaScript origins if you're using Google Sign-In.
 
 The free Render tier spins the service down after inactivity and takes a few seconds to wake up
 on the next request — fine for sharing with friends, not for production traffic.

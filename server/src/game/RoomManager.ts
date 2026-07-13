@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { Room, RoomError } from "./Room.js";
 import { RoomSettings, DEFAULT_SETTINGS, Avatar } from "./types.js";
+import { sanitizeSettings } from "./settings.js";
 import { query } from "../db.js";
 
 const genCode = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
@@ -18,7 +19,7 @@ class RoomManager {
     let code = genCode();
     while (this.codeToId.has(code)) code = genCode();
 
-    const settings: RoomSettings = { ...DEFAULT_SETTINGS, ...settingsOverride };
+    const settings: RoomSettings = sanitizeSettings(DEFAULT_SETTINGS, settingsOverride);
     const room = new Room(id, code, hostUserId, settings);
     this.rooms.set(id, room);
     this.codeToId.set(code, id);
