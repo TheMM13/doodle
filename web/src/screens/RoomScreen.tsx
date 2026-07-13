@@ -118,23 +118,25 @@ export function RoomScreen() {
         </div>
         <div className="canvas-area">
           <DrawingCanvas ref={canvasRef} isDrawer={canDraw} color={color} brushSize={brushSize} tool={tool} onLocalStroke={sendStroke} />
-          <Toolbar
-            color={color}
-            setColor={setColor}
-            brushSize={brushSize}
-            setBrushSize={setBrushSize}
-            tool={tool}
-            setTool={setTool}
-            onUndo={() => {
-              canvasRef.current?.applyRemoteStroke({ type: "undo" });
-              sendStroke({ type: "undo" });
-            }}
-            onClear={() => {
-              canvasRef.current?.applyRemoteStroke({ type: "clear" });
-              sendStroke({ type: "clear" });
-            }}
-            disabled={!canDraw}
-          />
+          {canDraw && (
+            <Toolbar
+              color={color}
+              setColor={setColor}
+              brushSize={brushSize}
+              setBrushSize={setBrushSize}
+              tool={tool}
+              setTool={setTool}
+              onUndo={() => {
+                canvasRef.current?.applyRemoteStroke({ type: "undo" });
+                sendStroke({ type: "undo" });
+              }}
+              onClear={() => {
+                canvasRef.current?.applyRemoteStroke({ type: "clear" });
+                sendStroke({ type: "clear" });
+              }}
+              disabled={false}
+            />
+          )}
         </div>
         <div className="chat-column">
           <ChatGuessBox messages={messages} onSend={sendGuess} disabledPlaceholder={isDrawer ? "You're drawing..." : "Type your guess..."} />
