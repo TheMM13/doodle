@@ -14,7 +14,22 @@ export function WordBanner({ word, wordRevealed, wordLength, round, totalRounds,
   const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
-    const tick = () => setSecondsLeft(endsAt ? Math.max(0, Math.ceil((endsAt - Date.now()) / 1000)) : 0);
+    let lastVibrated = -1;
+    const tick = () => {
+      if (!endsAt) {
+        setSecondsLeft(0);
+        return;
+      }
+      const left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+      setSecondsLeft(left);
+      
+      if (left === 10 && lastVibrated !== 10) {
+        lastVibrated = 10;
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate([200]);
+        }
+      }
+    };
     tick();
     const id = setInterval(tick, 250);
     return () => clearInterval(id);

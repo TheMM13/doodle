@@ -35,6 +35,12 @@ export function RoomScreen() {
     }
   }, [room?.round, room?.currentDrawerId, room?.strokes]);
 
+  useEffect(() => {
+    if (room && user && !room.players.find((p) => p.userId === user.id)) {
+      leaveRoom();
+    }
+  }, [room, user, leaveRoom]);
+
   if (!room || !user) return null;
 
   const isDrawer = room.currentDrawerId === user.id;
@@ -56,7 +62,7 @@ export function RoomScreen() {
           <span className="code-hint">Share this code so friends can join</span>
         </div>
         <div className="lobby-players">
-          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} />
+          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} roomCode={room.code} />
         </div>
         <div className="lobby-footer">
           {isHost && (
@@ -108,7 +114,7 @@ export function RoomScreen() {
 
       <div className="game-body">
         <div className="players-column">
-          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} onKickVote={kickVote} />
+          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} roomCode={room.code} onKickVote={kickVote} />
         </div>
         <div className="canvas-area">
           <DrawingCanvas ref={canvasRef} isDrawer={canDraw} color={color} brushSize={brushSize} tool={tool} onLocalStroke={sendStroke} />
@@ -140,6 +146,7 @@ export function RoomScreen() {
       <ScoreboardOverlay
         visible={room.status === "game_end"}
         title="Game over!"
+        word={room.word}
         scores={room.players}
         showPlayAgain={isHost}
         onPlayAgain={handleStart}

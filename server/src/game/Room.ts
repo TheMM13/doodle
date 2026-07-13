@@ -321,8 +321,8 @@ export class Room extends EventEmitter {
       return;
     }
 
-    const normalized = text.toLowerCase();
-    const word = this.currentWord!.toLowerCase();
+    const normalized = text.toLowerCase().replace(/[^a-z]/g, '');
+    const word = this.currentWord!.toLowerCase().replace(/[^a-z]/g, '');
 
     if (normalized === word) {
       player.hasGuessedThisTurn = true;

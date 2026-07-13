@@ -110,7 +110,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, Props>(function Dra
       ctx.lineJoin = "round";
       ctx.moveTo(from.x, from.y);
       // A zero-length segment renders nothing, so nudge to paint the dot.
-      if (from.x === to.x && from.y === to.y) ctx.lineTo(to.x + 0.01, to.y + 0.01);
+      if (from.x === to.x && from.y === to.y) ctx.lineTo(to.x + 0.1, to.y + 0.1);
       else ctx.lineTo(to.x, to.y);
       ctx.stroke();
     },

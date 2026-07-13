@@ -321,7 +321,7 @@ button {
 .player-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 .player-row {
@@ -330,8 +330,9 @@ button {
   gap: 8px;
   background: #fff;
   border: 2px solid var(--panel-border);
-  padding: 8px 10px;
-  border-radius: 14px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 .player-drawing {
   border-color: var(--yellow);
@@ -410,7 +411,35 @@ button {
   font-weight: 700;
   color: #b23b3b;
   background: none;
-  border: none;
+  border: 1px solid #f5c6c6;
+  border-radius: 6px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.player-me {
+  border-color: var(--blue);
+  background: #eef6ff;
+}
+.code-copied-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--blue-dark);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  animation: toast-in 0.25s ease;
+  z-index: 999;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* Game screen */
@@ -535,15 +564,15 @@ button {
   border: 3px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
-  padding: 12px;
+  padding: 0 0 12px 0;
+  overflow: hidden;
 }
 .drawing-canvas {
   width: 100%;
   aspect-ratio: 800 / 600;
   background: #fff;
-  border: 2px solid var(--panel-border);
-  border-radius: 12px;
   touch-action: none;
+  display: block;
 }
 .chat-column {
   flex: 1 1 260px;
@@ -559,6 +588,7 @@ button {
   background: #f4faff;
   border-radius: 12px;
   padding: 8px;
+  margin: 0 12px;
 }
 .toolbar-disabled {
   opacity: 0.4;

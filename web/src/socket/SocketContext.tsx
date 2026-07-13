@@ -81,7 +81,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket.on("chat:message", (msg: ChatMessage) => setMessages((prev) => [...prev.slice(-199), msg]));
     socket.on("chat:private", (msg: { kind: "correct" | "close"; text: string }) => {
       setPrivateNotice(msg);
-      setTimeout(() => setPrivateNotice((cur) => (cur === msg ? null : cur)), 3000);
+      setTimeout(() => setPrivateNotice((cur) => (cur === msg ? null : cur)), 5000);
     });
     socket.on("canvas:stroke", (stroke: Stroke) => strokeListeners.current.forEach((cb) => cb(stroke)));
     socket.on("canvas:sync", (strokes: Stroke[]) => syncListeners.current.forEach((cb) => cb(strokes)));
