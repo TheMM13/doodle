@@ -55,10 +55,11 @@ class RoomManager {
     return { room, ...result };
   }
 
-  async markDisconnected(roomId: string, userId: string) {
+  async markDisconnected(roomId: string, userId: string, socketId?: string) {
     const room = this.rooms.get(roomId);
     if (!room) return;
-    room.markDisconnected(userId);
+    const marked = room.markDisconnected(userId, socketId);
+    if (!marked) return; // stale socket -- the player is still connected elsewhere
     await query(
       `UPDATE room_players SET is_connected = FALSE, disconnected_at = now() WHERE room_id=$1 AND user_id=$2`,
       [roomId, userId]

@@ -11,9 +11,10 @@ interface Props {
   scores: ScoreRow[];
   showPlayAgain?: boolean;
   onPlayAgain?: () => void;
+  onLeave?: () => void;
 }
 
-export function ScoreboardOverlay({ visible, title, word, scores, showPlayAgain, onPlayAgain }: Props) {
+export function ScoreboardOverlay({ visible, title, word, scores, showPlayAgain, onPlayAgain, onLeave }: Props) {
   if (!visible) return null;
   const sorted = [...scores].sort((a, b) => b.score - a.score);
   return (
@@ -31,6 +32,12 @@ export function ScoreboardOverlay({ visible, title, word, scores, showPlayAgain,
         {showPlayAgain && (
           <button className="primary-btn" onClick={onPlayAgain}>
             Play again
+          </button>
+        )}
+        {!showPlayAgain && onLeave && <p className="waiting-text">Waiting for the host to start a new game...</p>}
+        {onLeave && (
+          <button className="link-btn" onClick={onLeave}>
+            Leave room
           </button>
         )}
       </div>

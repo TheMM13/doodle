@@ -71,18 +71,17 @@ npm run dev               # starts on :5173 (or the next free port)
 ## What's implemented vs. simplified
 
 Implemented: room creation/join by code, host-configurable settings (players, draw time,
-rounds, word count, hints, custom words, private/public), turn rotation, word choice with
-auto-pick timeout, live stroke streaming, color palette, brush sizes, eraser, whole-canvas fill,
-undo/clear, hint letter reveals, correct/close-guess detection (with spoiler-safe chat routing
-for the drawer and players who've already guessed), scoring, round/game-end scoreboards, play
-again, avatar customization, vote-kick, Google/guest auth, and disconnect-and-resume.
+rounds, word count, hints, game mode, custom words, private/public), turn rotation, word choice
+with auto-pick timeout, live stroke streaming, color palette, brush sizes, eraser, true
+flood-fill bucket (bounded by drawn lines, undoable, replayed on reconnect), undo/clear, hint
+letter reveals, correct/close-guess detection (with spoiler-safe chat routing for the drawer
+and players who've already guessed), scoring, round/game-end scoreboards, play again, avatar
+customization, vote-kick, Google/guest auth, and disconnect-and-resume.
 
-Simplified vs. a literal skribbl.io clone: the "fill bucket" fills the whole canvas rather than
-doing a true region flood-fill (skribbl's canvas is raster-based server-side; this app streams
-vector strokes, which don't support region fill without a lot of extra plumbing); the word list
-is an original ~750-word bank (comparable in size and category breadth to skribbl's default
-list) rather than skribbl's actual compiled list; there's no
-localization (English only); and profanity filtering isn't implemented.
+Simplified vs. a literal skribbl.io clone: the word list is an original ~750-word bank
+(comparable in size and category breadth to skribbl's default list) rather than skribbl's
+actual compiled list; there's no localization (English only); and profanity filtering isn't
+implemented.
 
 ## Deployment (Render)
 

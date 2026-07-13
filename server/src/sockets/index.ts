@@ -186,7 +186,7 @@ export function registerSocketHandlers(io: Server) {
     socket.on("disconnect", async () => {
       if (!data.roomId) return;
       try {
-        await roomManager.markDisconnected(data.roomId, data.userId);
+        await roomManager.markDisconnected(data.roomId, data.userId, socket.id);
         const room = roomManager.getById(data.roomId);
         if (room) broadcastState(io, room);
       } catch (err) {

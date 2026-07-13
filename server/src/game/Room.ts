@@ -88,9 +88,12 @@ export class Room extends EventEmitter {
     return { player, resumed: false };
   }
 
-  markDisconnected(userId: string) {
+  markDisconnected(userId: string, socketId?: string): boolean {
     const player = this.players.get(userId);
-    if (!player) return;
+    if (!player) return false;
+    // A stale socket closing (e.g. the old tab after the player resumed in a
+    // new one) must not mark the player's live connection as disconnected.
+    if (socketId && player.socketId && player.socketId !== socketId) return false;
     player.isConnected = false;
     player.socketId = null;
     player.disconnectedAt = Date.now();
@@ -108,6 +111,7 @@ export class Room extends EventEmitter {
       }
     }
     this.emitState();
+    return true;
   }
 
   leaveRoom(userId: string) {
@@ -115,6 +119,9 @@ export class Room extends EventEmitter {
     const leavingName = this.players.get(userId)?.name ?? "A player";
     this.players.delete(userId);
     this.turnOrder = this.turnOrder.filter((id) => id !== userId);
+    // Their pending kick votes (for them and by them) are meaningless now.
+    this.kickVotes.delete(userId);
+    for (const votes of this.kickVotes.values()) votes.delete(userId);
     if (this.hostUserId === userId) {
       const nextHost = [...this.players.values()].sort((a, b) => a.joinOrder - b.joinOrder)[0];
       if (nextHost) this.hostUserId = nextHost.userId;
@@ -178,6 +185,7 @@ export class Room extends EventEmitter {
 
   private nextTurn(attempts = 0) {
     this.clearTimers();
+    this.currentWord = null;
     if (this.turnOrder.length === 0) {
       this.status = "lobby";
       this.emitState();
@@ -270,7 +278,14 @@ export class Room extends EventEmitter {
     if (userId !== this.currentDrawerId || this.status !== "drawing") return;
     if (stroke.type === "clear") {
       this.strokes = [];
-    } else {
+    } else if (stroke.type === "undo") {
+      // Actually remove the undone action from the authoritative history --
+      // if we only relayed the undo, anyone who joins/reconnects later would
+      // get the pre-undo strokes replayed via canvas:sync.
+      let i = this.strokes.length - 1;
+      while (i >= 0 && this.strokes[i].type !== "start" && this.strokes[i].type !== "fill") i--;
+      this.strokes = i >= 0 ? this.strokes.slice(0, i) : [];
+    } else if (stroke.type !== "end") {
       this.strokes.push(stroke);
       if (this.strokes.length > 8000) this.strokes.shift();
     }
@@ -334,6 +349,9 @@ export class Room extends EventEmitter {
     }
 
     if (isCloseGuess(normalized, word)) {
+      // Near-misses still appear in chat for everyone (like any wrong guess);
+      // only the "is close!" nudge is private to the guesser.
+      this.emit("chat", { userId, name: player.name, text, kind: "chat" });
       this.emit("privateMessage", { toUserId: userId, kind: "close", text: `"${text}" is close!` });
       return;
     }
@@ -367,6 +385,7 @@ export class Room extends EventEmitter {
     this.clearTimers();
     const word = this.currentWord;
     this.status = "round_end";
+    this.turnEndsAt = null;
     this.emit("roundEnd", {
       word,
       scores: [...this.players.values()].map((p) => ({ userId: p.userId, name: p.name, score: p.score })),
@@ -374,7 +393,8 @@ export class Room extends EventEmitter {
     if (word) {
       this.emit("chat", { userId: "system", name: "System", text: `The word was '${word}'`, kind: "reveal" });
     }
-    this.currentWord = null;
+    // currentWord is intentionally kept until the next turn starts so the
+    // round-end scoreboard can show everyone what the word was.
     this.emitState();
     this.roundEndTimer = setTimeout(() => this.nextTurn(), ROUND_END_PAUSE_MS);
   }
@@ -420,7 +440,7 @@ export class Room extends EventEmitter {
       hostUserId: this.hostUserId,
       settings: this.settings,
       status: this.status,
-      round: this.currentRound,
+      round: Math.min(this.currentRound, this.settings.rounds),
       totalRounds: this.settings.rounds,
       currentDrawerId: this.currentDrawerId,
       isYourTurnToChoose: isDrawer && this.status === "choosing_word",

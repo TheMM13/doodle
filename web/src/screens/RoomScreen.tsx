@@ -96,7 +96,7 @@ export function RoomScreen() {
         wordLength={room.wordLength}
         round={room.round}
         totalRounds={room.totalRounds}
-        endsAt={room.turnEndsAt}
+        endsAt={room.status === "choosing_word" ? room.chooseEndsAt : room.turnEndsAt}
         drawerName={drawer?.name ?? null}
       />
       {privateNotice && (
@@ -143,6 +143,7 @@ export function RoomScreen() {
         scores={room.players}
         showPlayAgain={isHost}
         onPlayAgain={handleStart}
+        onLeave={leaveRoom}
       />
     </div>
   );

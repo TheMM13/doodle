@@ -66,7 +66,14 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnected(true);
       const lastCode = localStorage.getItem(LAST_ROOM_KEY);
       if (lastCode) {
-        socket.emit("room:join", { code: lastCode, avatar: { face: 0, color: "#5aa9e6", hat: 0 } }, () => {});
+        socket.emit("room:join", { code: lastCode, avatar: { face: 0, color: "#5aa9e6", hat: 0 } }, (ack: Ack) => {
+          // If the room is gone (expired, or the server restarted), stop
+          // showing its stale state and stop retrying it on every reconnect.
+          if (!ack?.ok) {
+            localStorage.removeItem(LAST_ROOM_KEY);
+            setRoom(null);
+          }
+        });
       }
     });
     socket.on("disconnect", () => setConnected(false));
