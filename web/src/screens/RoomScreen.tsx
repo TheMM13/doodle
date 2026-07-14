@@ -9,18 +9,34 @@ import { WordBanner } from "../components/WordBanner";
 import { WordChoiceModal } from "../components/WordChoiceModal";
 import { ScoreboardOverlay } from "../components/ScoreboardOverlay";
 import { RoomSettingsModal } from "../components/RoomSettingsModal";
+import { Reactions } from "../components/Reactions";
 import { BRUSH_SIZES } from "../game/canvasSize";
 
 export function RoomScreen() {
   const { user } = useAuth();
-  const { room, messages, privateNotice, leaveRoom, startGame, chooseWord, sendStroke, sendGuess, kickVote, onCanvasStroke, onCanvasSync, updateSettings } =
-    useSocket();
+  const {
+    room,
+    messages,
+    privateNotice,
+    leaveRoom,
+    startGame,
+    chooseWord,
+    sendStroke,
+    sendGuess,
+    kickVote,
+    sendReaction,
+    onReaction,
+    onCanvasStroke,
+    onCanvasSync,
+    updateSettings,
+  } = useSocket();
   const canvasRef = useRef<DrawingCanvasHandle>(null);
   const [color, setColor] = useState("#000000");
   const [brushSize, setBrushSize] = useState<number>(BRUSH_SIZES.medium);
   const [tool, setTool] = useState<"pen" | "eraser" | "fill">("pen");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
   const lastTurnKey = useRef<string>("");
 
   useEffect(() => onCanvasStroke((s) => canvasRef.current?.applyRemoteStroke(s)), [onCanvasStroke]);
@@ -53,16 +69,24 @@ export function RoomScreen() {
     if (!ack.ok) setError(ack.error ?? "Can't start game");
   };
 
+  const copyRoomCode = () => {
+    navigator.clipboard.writeText(room.code).catch(() => {});
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
   if (room.status === "lobby") {
     return (
       <div className="screen room-screen lobby-screen">
         <div className="lobby-header">
           <span className="code-label">Room Code</span>
-          <span className="room-code">{room.code}</span>
-          <span className="code-hint">Share this code so friends can join</span>
+          <button className="room-code" onClick={copyRoomCode} title="Click to copy">
+            {room.code}
+          </button>
+          <span className="code-hint">{codeCopied ? "Copied!" : "Click the code to copy and share"}</span>
         </div>
         <div className="lobby-players">
-          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} roomCode={room.code} />
+          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} />
         </div>
         <div className="lobby-footer">
           {isHost && (
@@ -114,10 +138,11 @@ export function RoomScreen() {
 
       <div className="game-body">
         <div className="players-column">
-          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} roomCode={room.code} onKickVote={kickVote} />
+          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} onKickVote={kickVote} />
         </div>
         <div className="canvas-area">
           <DrawingCanvas ref={canvasRef} isDrawer={canDraw} color={color} brushSize={brushSize} tool={tool} onLocalStroke={sendStroke} />
+          <Reactions canReact={!isDrawer && room.status === "drawing"} onReact={sendReaction} subscribe={onReaction} />
           {canDraw && (
             <Toolbar
               color={color}

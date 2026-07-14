@@ -28,6 +28,8 @@ interface SocketContextValue {
   sendStroke: (stroke: Stroke) => void;
   sendGuess: (text: string) => void;
   kickVote: (targetUserId: string) => void;
+  sendReaction: (kind: "like" | "dislike") => void;
+  onReaction: (cb: (r: { kind: "like" | "dislike"; fromName: string }) => void) => () => void;
   onCanvasStroke: (cb: (s: Stroke) => void) => () => void;
   onCanvasSync: (cb: (strokes: Stroke[]) => void) => () => void;
 }
@@ -43,6 +45,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [privateNotice, setPrivateNotice] = useState<{ kind: "correct" | "close"; text: string } | null>(null);
   const strokeListeners = useRef(new Set<(s: Stroke) => void>());
   const syncListeners = useRef(new Set<(s: Stroke[]) => void>());
+  const reactionListeners = useRef(new Set<(r: { kind: "like" | "dislike"; fromName: string }) => void>());
 
   useEffect(() => {
     if (!token) {
@@ -85,6 +88,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     });
     socket.on("canvas:stroke", (stroke: Stroke) => strokeListeners.current.forEach((cb) => cb(stroke)));
     socket.on("canvas:sync", (strokes: Stroke[]) => syncListeners.current.forEach((cb) => cb(strokes)));
+    socket.on("game:reaction", (r: { kind: "like" | "dislike"; fromName: string }) =>
+      reactionListeners.current.forEach((cb) => cb(r))
+    );
 
     return () => {
       socket.disconnect();
@@ -158,6 +164,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const sendStroke = useCallback((stroke: Stroke) => socketRef.current?.emit("game:stroke", stroke), []);
   const sendGuess = useCallback((text: string) => socketRef.current?.emit("game:guess", { text }), []);
   const kickVote = useCallback((targetUserId: string) => socketRef.current?.emit("game:kickVote", { targetUserId }), []);
+  const sendReaction = useCallback((kind: "like" | "dislike") => socketRef.current?.emit("game:reaction", { kind }), []);
 
   const onCanvasStroke = useCallback((cb: (s: Stroke) => void) => {
     strokeListeners.current.add(cb);
@@ -166,6 +173,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const onCanvasSync = useCallback((cb: (s: Stroke[]) => void) => {
     syncListeners.current.add(cb);
     return () => syncListeners.current.delete(cb);
+  }, []);
+  const onReaction = useCallback((cb: (r: { kind: "like" | "dislike"; fromName: string }) => void) => {
+    reactionListeners.current.add(cb);
+    return () => reactionListeners.current.delete(cb);
   }, []);
 
   return (
@@ -184,6 +195,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         sendStroke,
         sendGuess,
         kickVote,
+        sendReaction,
+        onReaction,
         onCanvasStroke,
         onCanvasSync,
       }}

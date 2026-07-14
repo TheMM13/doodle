@@ -28,7 +28,15 @@ function allowRequest(ip: string): boolean {
   return entry.count <= MAX_PER_WINDOW;
 }
 
-const guestBody = z.object({ name: z.string().trim().min(1).max(20) });
+const avatarSchema = z
+  .object({
+    face: z.number().int().min(0).max(7),
+    hat: z.number().int().min(0).max(5),
+    color: z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
+  })
+  .optional();
+
+const guestBody = z.object({ name: z.string().trim().min(1).max(20), avatar: avatarSchema });
 
 authRouter.post("/guest", async (req, res) => {
   if (!allowRequest(req.ip ?? "unknown")) {
@@ -38,10 +46,12 @@ authRouter.post("/guest", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "name required" });
 
   try {
-    const inserted = await query(
-      `INSERT INTO users (name, is_guest) VALUES ($1, TRUE) RETURNING *`,
-      [parsed.data.name]
-    );
+    const inserted = parsed.data.avatar
+      ? await query(
+          `INSERT INTO users (name, is_guest, avatar) VALUES ($1, TRUE, $2) RETURNING *`,
+          [parsed.data.name, JSON.stringify(parsed.data.avatar)]
+        )
+      : await query(`INSERT INTO users (name, is_guest) VALUES ($1, TRUE) RETURNING *`, [parsed.data.name]);
     const user = inserted.rows[0];
     const token = signAppJwt({ userId: user.id, name: user.name, isGuest: true });
     res.json({ token, user: { id: user.id, name: user.name, avatar: user.avatar } });

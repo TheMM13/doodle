@@ -157,15 +157,43 @@ const WORD_BANK = [
   "genie lamp", "magic carpet", "crystal ball", "tarot cards", "fortune cookie", "magic wand",
 ];
 
-export function getWordBank(customWords: string[] = [], useCustomOnly = false): string[] {
-  const cleanedCustom = customWords.map((w) => w.trim().toLowerCase()).filter(Boolean);
-  if (useCustomOnly && cleanedCustom.length >= 3) return cleanedCustom;
-  return [...WORD_BANK, ...cleanedCustom];
+function shuffle<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
 }
 
-export function pickWordChoices(pool: string[], count: number, exclude: Set<string>): string[] {
-  const available = pool.filter((w) => !exclude.has(w));
-  const source = available.length >= count ? available : pool;
-  const shuffled = [...source].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+// Picking straight from customWords + WORD_BANK combined would drown out
+// custom words in the ~750-word built-in bank -- a host who added 5 words
+// would almost never actually see them offered. Instead, when custom words
+// exist, guarantee them a fair share of each turn's choices.
+export function pickWordChoices(
+  customWords: string[],
+  useCustomOnly: boolean,
+  count: number,
+  exclude: Set<string>
+): string[] {
+  const cleanedCustom = [...new Set(customWords.map((w) => w.trim().toLowerCase()).filter(Boolean))];
+
+  if (useCustomOnly && cleanedCustom.length >= 3) {
+    const available = cleanedCustom.filter((w) => !exclude.has(w));
+    const source = available.length >= count ? available : cleanedCustom;
+    return shuffle(source).slice(0, count);
+  }
+
+  if (cleanedCustom.length === 0) {
+    const available = WORD_BANK.filter((w) => !exclude.has(w));
+    const source = available.length >= count ? available : WORD_BANK;
+    return shuffle(source).slice(0, count);
+  }
+
+  const availCustom = cleanedCustom.filter((w) => !exclude.has(w));
+  const customPool = availCustom.length ? availCustom : cleanedCustom;
+  const customSlots = Math.min(customPool.length, Math.max(1, Math.ceil(count / 2)));
+  const chosenCustom = shuffle(customPool).slice(0, customSlots);
+
+  const remaining = count - chosenCustom.length;
+  const availBuiltIn = WORD_BANK.filter((w) => !exclude.has(w));
+  const builtInPool = availBuiltIn.length >= remaining ? availBuiltIn : WORD_BANK;
+  const chosenBuiltIn = remaining > 0 ? shuffle(builtInPool).slice(0, remaining) : [];
+
+  return shuffle([...chosenCustom, ...chosenBuiltIn]);
 }

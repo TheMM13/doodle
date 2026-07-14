@@ -5,75 +5,57 @@ interface Props {
   players: PlayerView[];
   hostUserId: string;
   meUserId: string;
-  roomCode?: string;
   onKickVote?: (userId: string) => void;
 }
 
-export function PlayerList({ players, hostUserId, meUserId, roomCode, onKickVote }: Props) {
-  const [copiedCode, setCopiedCode] = useState(false);
-
-  // Sort descending by score — live leaderboard order
+export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props) {
+  const [kickTarget, setKickTarget] = useState<string | null>(null);
   const sorted = [...players].sort((a, b) => b.score - a.score);
 
-  const handleSelfClick = () => {
-    if (!roomCode) return;
-    navigator.clipboard.writeText(roomCode).catch(() => {});
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2500);
-  };
-
   return (
-    <div className="player-list" style={{ position: "relative" }}>
-      {copiedCode && (
-        <div className="code-copied-toast">
-          📋 Room code <strong>{roomCode}</strong> copied!
-        </div>
-      )}
-      {sorted.map((p) => {
+    <div className="player-list">
+      {sorted.map((p, i) => {
         const isMe = p.userId === meUserId;
-        const isHost = p.userId === hostUserId;
-
+        const canKick = Boolean(onKickVote) && !isMe;
+        const expanded = kickTarget === p.userId;
         return (
-          <div
-            key={p.userId}
-            className={[
-              "player-row",
-              !p.isConnected ? "player-disconnected" : "",
-              p.isDrawing ? "player-drawing" : "",
-              p.hasGuessed ? "player-guessed" : "",
-              isMe ? "player-me" : "",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            onClick={isMe ? handleSelfClick : undefined}
-            title={isMe && roomCode ? "Click to copy room code" : undefined}
-            style={isMe ? { cursor: "pointer" } : undefined}
-          >
-            <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
-              <span className="player-avatar-face">{AVATAR_FACES[p.avatar.face % FACE_COUNT]}</span>
-              {p.avatar.hat > 0 && (
-                <span className="player-avatar-hat">{AVATAR_HATS[p.avatar.hat % HAT_COUNT]}</span>
-              )}
-            </span>
-
-            <div className="player-info">
-              <span className="player-name">
-                {isHost && <span className="player-crown">★ </span>}
-                {p.name}
-                {isMe && <span className="player-you"> (You)</span>}
-                {p.isDrawing && <span style={{ marginLeft: 4 }}>✏️</span>}
+          <div key={p.userId} className="player-row-wrap">
+            <div
+              className={[
+                "player-row",
+                !p.isConnected && "player-disconnected",
+                p.isDrawing && "player-drawing",
+                p.hasGuessed && "player-guessed",
+                canKick && "player-clickable",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={canKick ? () => setKickTarget(expanded ? null : p.userId) : undefined}
+            >
+              <span className="player-rank">{i + 1}</span>
+              <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
+                <span className="player-avatar-face">{AVATAR_FACES[p.avatar.face % FACE_COUNT]}</span>
+                {p.avatar.hat > 0 && <span className="player-avatar-hat">{AVATAR_HATS[p.avatar.hat % HAT_COUNT]}</span>}
               </span>
-              <span className="player-points">{p.score} pts</span>
-              {!p.isConnected && <span className="player-away">disconnected</span>}
+              <span className="player-name">
+                {p.userId === hostUserId && <span className="player-crown">★</span>}
+                {p.name}
+                {isMe && <span className="player-you"> (you)</span>}
+                {p.isDrawing && <span className="player-pencil">✏️</span>}
+                {!p.isConnected && <span className="player-away">away</span>}
+              </span>
+              <span className="player-points">{p.score}</span>
             </div>
-
-            {onKickVote && !isMe && (
+            {expanded && (
               <button
-                className="kick-btn"
-                onClick={(e) => { e.stopPropagation(); onKickVote(p.userId); }}
-                title="Vote to kick"
+                className="kick-confirm-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onKickVote?.(p.userId);
+                  setKickTarget(null);
+                }}
               >
-                kick
+                Vote to kick {p.name}
               </button>
             )}
           </div>

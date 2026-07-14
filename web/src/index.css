@@ -10,7 +10,7 @@
   --green-dark: #3d8b40;
   --red: #ef4b4b;
   --yellow: #ffc93c;
-  --shadow: 0 6px 0 rgba(0, 0, 0, 0.08), 0 8px 16px rgba(20, 60, 90, 0.12);
+  --shadow: 0 3px 0 rgba(0, 0, 0, 0.06), 0 4px 10px rgba(20, 60, 90, 0.1);
   --radius: 16px;
   color-scheme: light;
 }
@@ -193,9 +193,35 @@ button {
   background: var(--panel);
   border-radius: 20px;
   box-shadow: var(--shadow);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   margin-top: 24px;
   padding: 28px 22px;
+}
+.home-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.home-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+.home-avatar-face {
+  font-size: 24px;
+}
+.home-avatar-hat {
+  position: absolute;
+  top: -13px;
+  font-size: 18px;
 }
 
 /* Avatar picker */
@@ -276,7 +302,7 @@ button {
   align-items: center;
   gap: 2px;
   background: var(--panel);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   border-radius: 20px;
   box-shadow: var(--shadow);
   padding: 18px 24px;
@@ -294,6 +320,17 @@ button {
   font-weight: 800;
   letter-spacing: 8px;
   color: var(--blue-dark);
+  background: none;
+  border: none;
+  border-radius: 10px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+.room-code:hover {
+  background: #eef6ff;
+}
+.room-code:active {
+  transform: scale(0.97);
 }
 .code-hint {
   font-size: 12px;
@@ -321,125 +358,108 @@ button {
 .player-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
   width: 100%;
+}
+.player-row-wrap {
+  border-bottom: 1px solid #eef3f7;
+}
+.player-row-wrap:last-child {
+  border-bottom: none;
 }
 .player-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  border: 2px solid var(--panel-border);
-  padding: 7px 10px;
-  border-radius: 12px;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  padding: 6px 4px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
 }
-.player-drawing {
-  border-color: var(--yellow);
-  background: #fffbe9;
+.player-clickable {
+  cursor: pointer;
 }
-.player-guessed {
-  border-color: var(--green);
-  background: #e9f9ea;
+.player-clickable:hover {
+  background: #f4f9fd;
+}
+.player-drawing .player-name {
+  color: #a8790a;
+}
+.player-guessed .player-name {
+  color: var(--green-dark);
 }
 .player-disconnected {
   opacity: 0.5;
 }
 .player-rank {
-  font-family: "Baloo 2", sans-serif;
-  font-weight: 800;
-  font-size: 13px;
-  color: #6a889b;
-  min-width: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9db3c2;
+  min-width: 14px;
   flex-shrink: 0;
+  text-align: right;
 }
 .player-avatar {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
 }
 .player-avatar-face {
-  font-size: 18px;
+  font-size: 14px;
 }
 .player-avatar-hat {
   position: absolute;
-  top: -11px;
-  font-size: 14px;
-}
-.player-info {
-  flex: 1;
-  text-align: left;
-  min-width: 0;
+  top: -9px;
+  font-size: 11px;
 }
 .player-name {
-  font-weight: 800;
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
+  color: var(--ink);
 }
 .player-crown {
   color: var(--yellow);
-  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.2));
+  margin-right: 3px;
 }
 .player-you {
-  color: var(--blue-dark);
-  font-weight: 700;
+  color: #9db3c2;
+  font-weight: 600;
 }
-.player-points {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--blue-dark);
-  display: block;
+.player-pencil {
+  margin-left: 4px;
 }
 .player-away {
   font-size: 10px;
   color: #b23b3b;
   font-weight: 700;
-  display: block;
+  margin-left: 6px;
 }
-.kick-btn {
+.player-points {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--blue-dark);
+  flex-shrink: 0;
+}
+.kick-confirm-btn {
+  display: block;
+  width: 100%;
   font-size: 11px;
   font-weight: 700;
-  color: #b23b3b;
-  background: none;
-  border: 1px solid #f5c6c6;
-  border-radius: 6px;
-  padding: 2px 6px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.player-me {
-  border-color: var(--blue);
-  background: #eef6ff;
-}
-.code-copied-toast {
-  position: fixed;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--blue-dark);
   color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 999px;
-  white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  animation: toast-in 0.25s ease;
-  z-index: 999;
-}
-@keyframes toast-in {
-  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  background: #d9534f;
+  border: none;
+  border-radius: 8px;
+  padding: 5px;
+  margin: 2px 0 4px;
 }
 
 /* Game screen */
@@ -465,7 +485,7 @@ button {
   align-items: center;
   gap: 16px;
   background: var(--panel);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
   padding: 10px 20px;
@@ -547,25 +567,78 @@ button {
   flex: 0 0 220px;
   min-width: 200px;
   background: var(--panel);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
-  padding: 12px;
+  padding: 10px;
   max-height: 560px;
   overflow-y: auto;
 }
 .canvas-area {
+  position: relative;
   flex: 2 1 420px;
   min-width: 320px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   background: var(--panel);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
   padding: 0 0 12px 0;
   overflow: hidden;
+}
+
+/* Viewer reactions */
+.reaction-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+.reaction-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.reaction-btn-like {
+  background: var(--green);
+}
+.reaction-btn-dislike {
+  background: #e0685f;
+}
+.reaction-btn:active {
+  transform: scale(0.92);
+}
+.reactions-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 4;
+}
+.floating-reaction {
+  position: absolute;
+  bottom: 10px;
+  left: calc(10% + var(--rx, 0) * 80%);
+  font-size: 22px;
+  animation: float-up 1.8s ease-out forwards;
+}
+.floating-reaction:nth-child(3n) { --rx: 0.15; }
+.floating-reaction:nth-child(3n + 1) { --rx: 0.55; }
+.floating-reaction:nth-child(3n + 2) { --rx: 0.85; }
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(0) scale(0.6); }
+  15% { opacity: 1; transform: translateY(-20px) scale(1); }
+  100% { opacity: 0; transform: translateY(-140px) scale(1.1); }
 }
 .drawing-canvas {
   width: 100%;
@@ -586,44 +659,45 @@ button {
 
 .toolbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 8px;
   background: #f4faff;
   border-radius: 12px;
-  padding: 8px;
+  padding: 6px 8px;
   margin: 0 12px;
 }
 .toolbar-disabled {
   opacity: 0.4;
   pointer-events: none;
 }
+.toolbar-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .palette {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  justify-content: center;
+  gap: 3px;
 }
 .swatch {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px #d8ecfb;
   padding: 0;
+  flex-shrink: 0;
 }
 .swatch-active {
   box-shadow: 0 0 0 3px var(--blue);
 }
-.toolbar-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 .size-cycle-btn {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: #eaf6ff;
   border: 2px solid var(--blue);
@@ -637,16 +711,25 @@ button {
   background: #333;
   display: inline-block;
 }
-.tool-btn {
-  padding: 7px 12px;
-  border-radius: 10px;
+.toolbar-tools {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
+}
+.tool-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   background: #fff;
   border: 2px solid var(--panel-border);
-  font-size: 12px;
-  font-weight: 800;
   color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.tool-btn-active {
+.tool-icon-btn-active {
   background: var(--blue);
   border-color: var(--blue-dark);
   color: #fff;
@@ -656,7 +739,7 @@ button {
 .chat-box {
   flex: 1;
   background: var(--panel);
-  border: 3px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
   border-radius: 18px;
   box-shadow: var(--shadow);
   overflow: hidden;
@@ -718,6 +801,18 @@ button {
   border: none;
   font-weight: 800;
   font-family: "Baloo 2", sans-serif;
+}
+.chat-char-count {
+  align-self: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9db3c2;
+  padding: 0 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.chat-char-count-max {
+  color: #b23b3b;
 }
 
 /* Modals */
@@ -963,31 +1058,25 @@ button {
     margin: 0 auto;
   }
   .toolbar {
-    padding: 4px;
-    gap: 3px;
+    padding: 4px 6px;
+    gap: 4px;
   }
   .palette {
-    flex-wrap: nowrap;
     gap: 2px;
   }
   .swatch {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 3px;
     flex-shrink: 0;
   }
-  .toolbar-row {
-    flex-wrap: nowrap;
-    gap: 4px;
-  }
   .size-cycle-btn {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
-  .tool-btn {
-    padding: 5px 7px;
-    font-size: 10px;
-    flex-shrink: 1;
+  .tool-icon-btn {
+    width: 26px;
+    height: 26px;
   }
   .players-column {
     grid-area: players;
@@ -1024,13 +1113,5 @@ button {
     border-radius: 14px;
     box-shadow: var(--shadow);
     overflow: hidden;
-  }
-  .player-row {
-    padding: 6px 8px;
-    gap: 6px;
-  }
-  .player-avatar {
-    width: 28px;
-    height: 28px;
   }
 }

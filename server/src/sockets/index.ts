@@ -107,6 +107,7 @@ function wireRoomEvents(io: Server, room: Room) {
   });
   room.on("roundEnd", (payload) => io.to(room.id).emit("game:roundEnd", payload));
   room.on("gameEnd", (payload) => io.to(room.id).emit("game:gameEnd", payload));
+  room.on("reaction", (payload) => io.to(room.id).emit("game:reaction", payload));
   room.on("stroke", ({ fromUserId, stroke }: { fromUserId: string; stroke: Stroke }) => {
     const sockets = io.sockets.adapter.rooms.get(room.id);
     if (!sockets) return;
@@ -138,6 +139,7 @@ export function registerSocketHandlers(io: Server) {
     const allowJoin = makeLimiter(20, 60_000);
     const allowGuess = makeLimiter(6, 2_000);
     const allowStroke = makeLimiter(800, 2_000);
+    const allowReaction = makeLimiter(5, 3_000);
 
     socket.on("room:create", async (payload: { isPrivate?: boolean; settings?: Partial<RoomSettings>; avatar?: Avatar }, ack) => {
       if (!allowCreate()) return ack?.({ ok: false, error: "Slow down — too many rooms created" });
@@ -245,6 +247,13 @@ export function registerSocketHandlers(io: Server) {
       if (typeof payload?.text !== "string") return;
       const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
       room?.handleGuess(data.userId, payload.text);
+    });
+
+    socket.on("game:reaction", (payload: { kind?: string }) => {
+      if (!allowReaction()) return;
+      if (payload?.kind !== "like" && payload?.kind !== "dislike") return;
+      const room = data.roomId ? roomManager.getById(data.roomId) : undefined;
+      room?.react(data.userId, payload.kind);
     });
 
     socket.on("game:kickVote", (payload: { targetUserId?: string }) => {

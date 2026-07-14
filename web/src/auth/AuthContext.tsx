@@ -8,7 +8,7 @@ interface AuthContextValue {
   token: string | null;
   user: AuthUser | null;
   loading: boolean;
-  loginGuest: (name: string) => Promise<void>;
+  loginGuest: (name: string, avatar?: AuthUser["avatar"]) => Promise<void>;
   logout: () => void;
 }
 
@@ -29,8 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u);
   }, []);
 
-  const loginGuest = useCallback(async (name: string) => {
-    const res = await loginAsGuest(name);
+  const loginGuest = useCallback(async (name: string, avatar?: AuthUser["avatar"]) => {
+    const res = await loginAsGuest(name, avatar);
     persist(res.token, res.user);
   }, [persist]);
 

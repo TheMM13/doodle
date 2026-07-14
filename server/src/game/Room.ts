@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
 import { RoomSettings, RoomStatus, Player, Avatar, Stroke } from "./types.js";
-import { getWordBank, pickWordChoices } from "./words.js";
+import { pickWordChoices } from "./words.js";
 import { guesserPoints, drawerPointsForGuess, isCloseGuess } from "./scoring.js";
 import { sanitizeSettings } from "./settings.js";
 
@@ -241,8 +241,12 @@ export class Room extends EventEmitter {
       this.settings.gameMode === "hidden" || (this.settings.gameMode === "combination" && Math.random() < 0.5);
     for (const p of this.players.values()) p.hasGuessedThisTurn = false;
 
-    const pool = getWordBank(this.settings.customWords, this.settings.useCustomWordsOnly);
-    this.wordChoices = pickWordChoices(pool, this.settings.wordCount, this.usedWords);
+    this.wordChoices = pickWordChoices(
+      this.settings.customWords,
+      this.settings.useCustomWordsOnly,
+      this.settings.wordCount,
+      this.usedWords
+    );
     this.status = "choosing_word";
     this.chooseEndsAt = Date.now() + CHOOSE_WORD_MS;
 
@@ -377,6 +381,16 @@ export class Room extends EventEmitter {
     }
 
     this.emit("chat", { userId, name: player.name, text, kind: "chat" });
+  }
+
+  // Lightweight reaction relay for viewers -- no persisted tally, just a
+  // fire-and-forget broadcast the client renders as a floating emoji.
+  react(userId: string, kind: "like" | "dislike") {
+    if (this.status !== "drawing") return;
+    if (userId === this.currentDrawerId) return;
+    const player = this.players.get(userId);
+    if (!player || !player.isConnected) return;
+    this.emit("reaction", { kind, fromName: player.name });
   }
 
   kickVote(requesterId: string, targetUserId: string) {

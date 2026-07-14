@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useSocket } from "../socket/SocketContext";
-import { AvatarPicker } from "../components/AvatarPicker";
-import type { Avatar } from "../game/types";
+import { AVATAR_FACES, AVATAR_HATS, FACE_COUNT, HAT_COUNT } from "../game/types";
 
 export function HomeScreen() {
   const { user, logout } = useAuth();
   const { connected, createRoom, joinRoom } = useSocket();
-  const [avatar, setAvatar] = useState<Avatar>(user?.avatar ?? { face: 0, color: "#5aa9e6", hat: 0 });
+  const avatar = user?.avatar ?? { face: 0, color: "#5aa9e6", hat: 0 };
   const [code, setCode] = useState("");
   const [isPrivate, setIsPrivate] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -33,10 +32,16 @@ export function HomeScreen() {
 
   return (
     <div className="screen home-screen">
-      <h1 className="title">Hi, {user?.name}</h1>
-      <p className="status-line">{connected ? "🟢 connected" : "🔴 connecting..."}</p>
-
-      <AvatarPicker avatar={avatar} onChange={setAvatar} />
+      <div className="home-header">
+        <span className="home-avatar" style={{ backgroundColor: avatar.color }}>
+          <span className="home-avatar-face">{AVATAR_FACES[avatar.face % FACE_COUNT]}</span>
+          {avatar.hat > 0 && <span className="home-avatar-hat">{AVATAR_HATS[avatar.hat % HAT_COUNT]}</span>}
+        </span>
+        <div>
+          <h1 className="title">Hi, {user?.name}</h1>
+          <p className="status-line">{connected ? "🟢 connected" : "🔴 connecting..."}</p>
+        </div>
+      </div>
 
       <label className="toggle-row">
         <input type="checkbox" checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} />
