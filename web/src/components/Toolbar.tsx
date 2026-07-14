@@ -23,33 +23,41 @@ export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setToo
 
   return (
     <div className={`toolbar ${disabled ? "toolbar-disabled" : ""}`}>
-      <div className="toolbar-left">
-        <button className="size-cycle-btn" onClick={cycleBrushSize} disabled={disabled} title="Brush size">
-          <span className="size-dot" style={{ width: brushSize, height: brushSize }} />
-        </button>
-        <div className="palette">
-          {PALETTE.map((c) => (
-            <button
-              key={c}
-              className={`swatch ${color === c && tool !== "eraser" ? "swatch-active" : ""}`}
-              style={{ backgroundColor: c }}
-              onClick={() => setColor(c)}
-              disabled={disabled}
-            />
-          ))}
-        </div>
+      <button className="size-cycle-btn" onClick={cycleBrushSize} disabled={disabled} title="Brush size">
+        <span className="size-dot" style={{ width: brushSize, height: brushSize }} />
+      </button>
+      <div className="palette">
+        {PALETTE.map((c) => (
+          <button
+            key={c}
+            className={`swatch ${color === c && tool !== "eraser" ? "swatch-active" : ""}`}
+            style={{ backgroundColor: c }}
+            onClick={() => setColor(c)}
+            disabled={disabled}
+          />
+        ))}
       </div>
       <div className="toolbar-tools">
-        <button className={`tool-icon-btn ${tool === "fill" ? "tool-icon-btn-active" : ""}`} onClick={() => setTool(tool === "fill" ? "pen" : "fill")} disabled={disabled} title="Fill">
+        <button
+          className={`tool-icon-btn tool-fill ${tool === "fill" ? "tool-active" : ""}`}
+          onClick={() => setTool(tool === "fill" ? "pen" : "fill")}
+          disabled={disabled}
+          title="Fill"
+        >
           <FillIcon />
         </button>
-        <button className={`tool-icon-btn ${tool === "eraser" ? "tool-icon-btn-active" : ""}`} onClick={() => setTool(tool === "eraser" ? "pen" : "eraser")} disabled={disabled} title="Eraser">
+        <button
+          className={`tool-icon-btn tool-eraser ${tool === "eraser" ? "tool-active" : ""}`}
+          onClick={() => setTool(tool === "eraser" ? "pen" : "eraser")}
+          disabled={disabled}
+          title="Eraser"
+        >
           <EraserIcon />
         </button>
-        <button className="tool-icon-btn" onClick={onUndo} disabled={disabled} title="Undo">
+        <button className="tool-icon-btn tool-undo" onClick={onUndo} disabled={disabled} title="Undo">
           <UndoIcon />
         </button>
-        <button className="tool-icon-btn" onClick={onClear} disabled={disabled} title="Clear">
+        <button className="tool-icon-btn tool-clear" onClick={onClear} disabled={disabled} title="Clear">
           <ClearIcon />
         </button>
       </div>

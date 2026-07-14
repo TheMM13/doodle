@@ -660,78 +660,126 @@ button {
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #f4faff;
-  border-radius: 12px;
-  padding: 6px 8px;
-  margin: 0 12px;
+  gap: 14px;
+  padding: 4px 14px 8px;
 }
 .toolbar-disabled {
   opacity: 0.4;
   pointer-events: none;
 }
-.toolbar-left {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.palette {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-}
-.swatch {
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1px #d8ecfb;
-  padding: 0;
-  flex-shrink: 0;
-}
-.swatch-active {
-  box-shadow: 0 0 0 3px var(--blue);
-}
 .size-cycle-btn {
-  width: 30px;
-  height: 30px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: #eaf6ff;
-  border: 2px solid var(--blue);
+  background: #fff;
+  border: 3px solid var(--blue);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.size-cycle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(59, 158, 229, 0.35);
+}
+.size-cycle-btn:active {
+  transform: scale(0.94);
 }
 .size-dot {
   border-radius: 50%;
   background: #333;
   display: inline-block;
 }
+.palette {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.swatch:hover {
+  transform: scale(1.18);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+.swatch-active {
+  box-shadow: 0 0 0 3px var(--blue), 0 1px 3px rgba(0, 0, 0, 0.25);
+  transform: scale(1.12);
+}
 .toolbar-tools {
   flex-shrink: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 .tool-icon-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: #fff;
-  border: 2px solid var(--panel-border);
-  color: var(--ink);
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 2px solid;
+  border-bottom-width: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
-.tool-icon-btn-active {
-  background: var(--blue);
-  border-color: var(--blue-dark);
+.tool-icon-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(20, 60, 90, 0.25);
+}
+.tool-icon-btn:active {
+  transform: translateY(1px);
+  border-bottom-width: 2px;
+}
+/* Each tool gets its own accent so the group reads at a glance */
+.tool-fill {
+  background: #f3ecff;
+  border-color: #d9c6f7;
+  color: #7c3aed;
+}
+.tool-fill.tool-active {
+  background: #7c3aed;
+  border-color: #5b21b6;
+  color: #fff;
+}
+.tool-eraser {
+  background: #fff0e4;
+  border-color: #f7d4b5;
+  color: #e07b39;
+}
+.tool-eraser.tool-active {
+  background: #e07b39;
+  border-color: #b45a1d;
+  color: #fff;
+}
+.tool-undo {
+  background: #fff6dd;
+  border-color: #f2e0a8;
+  color: #a8790a;
+}
+.tool-undo:active {
+  background: #f2c94c;
+  color: #fff;
+}
+.tool-clear {
+  background: #ffecec;
+  border-color: #f5c6c6;
+  color: #d9534f;
+}
+.tool-clear:active {
+  background: #d9534f;
   color: #fff;
 }
 
@@ -1058,25 +1106,26 @@ button {
     margin: 0 auto;
   }
   .toolbar {
-    padding: 4px 6px;
-    gap: 4px;
+    padding: 2px 8px 6px;
+    gap: 8px;
   }
   .palette {
-    gap: 2px;
+    gap: 4px;
   }
   .swatch {
-    width: 14px;
-    height: 14px;
-    border-radius: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
     flex-shrink: 0;
   }
   .size-cycle-btn {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
   }
   .tool-icon-btn {
-    width: 26px;
-    height: 26px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
   }
   .players-column {
     grid-area: players;
