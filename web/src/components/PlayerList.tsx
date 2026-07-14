@@ -5,19 +5,31 @@ interface Props {
   players: PlayerView[];
   hostUserId: string;
   meUserId: string;
+  roomCode?: string;
   onKickVote?: (userId: string) => void;
 }
 
-export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props) {
+export function PlayerList({ players, hostUserId, meUserId, roomCode, onKickVote }: Props) {
   const [kickTarget, setKickTarget] = useState<string | null>(null);
   const sorted = [...players].sort((a, b) => b.score - a.score);
 
   return (
     <div className="player-list">
-      {sorted.map((p, i) => {
+      {sorted.map((p) => {
         const isMe = p.userId === meUserId;
         const canKick = Boolean(onKickVote) && !isMe;
         const expanded = kickTarget === p.userId;
+
+        const handleClick = () => {
+          if (canKick) {
+            setKickTarget(expanded ? null : p.userId);
+          } else if (isMe && roomCode) {
+            navigator.clipboard.writeText(roomCode).catch(() => {});
+          }
+        };
+
+        const clickable = canKick || (isMe && Boolean(roomCode));
+
         return (
           <div key={p.userId} className="player-row-wrap">
             <div
@@ -26,13 +38,12 @@ export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props)
                 !p.isConnected && "player-disconnected",
                 p.isDrawing && "player-drawing",
                 p.hasGuessed && "player-guessed",
-                canKick && "player-clickable",
+                clickable && "player-clickable",
               ]
                 .filter(Boolean)
                 .join(" ")}
-              onClick={canKick ? () => setKickTarget(expanded ? null : p.userId) : undefined}
+              onClick={clickable ? handleClick : undefined}
             >
-              <span className="player-rank">{i + 1}</span>
               <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
                 <span className="player-avatar-face">{AVATAR_FACES[p.avatar.face % FACE_COUNT]}</span>
                 {p.avatar.hat > 0 && <span className="player-avatar-hat">{AVATAR_HATS[p.avatar.hat % HAT_COUNT]}</span>}
@@ -41,8 +52,8 @@ export function PlayerList({ players, hostUserId, meUserId, onKickVote }: Props)
                 {p.userId === hostUserId && <span className="player-crown">★</span>}
                 {p.name}
                 {isMe && <span className="player-you"> (you)</span>}
-                {p.isDrawing && <span className="player-pencil">✏️</span>}
-                {!p.isConnected && <span className="player-away">away</span>}
+                {p.isDrawing && <span className="player-pencil"> ✏️</span>}
+                {!p.isConnected && <span className="player-away"> away</span>}
               </span>
               <span className="player-points">{p.score}</span>
             </div>

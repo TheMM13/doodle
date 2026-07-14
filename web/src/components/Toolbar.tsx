@@ -1,5 +1,5 @@
 import { PALETTE, BRUSH_SIZES } from "../game/canvasSize";
-import { FillIcon, EraserIcon, UndoIcon, ClearIcon } from "./ToolIcons";
+import { PenIcon, FillIcon, EraserIcon, UndoIcon, ClearIcon } from "./ToolIcons";
 
 interface Props {
   color: string;
@@ -30,14 +30,22 @@ export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setToo
         {PALETTE.map((c) => (
           <button
             key={c}
-            className={`swatch ${color === c && tool !== "eraser" ? "swatch-active" : ""}`}
+            className={`swatch ${color === c && tool === "pen" ? "swatch-active" : ""}`}
             style={{ backgroundColor: c }}
-            onClick={() => setColor(c)}
+            onClick={() => { setColor(c); setTool("pen"); }}
             disabled={disabled}
           />
         ))}
       </div>
       <div className="toolbar-tools">
+        <button
+          className={`tool-icon-btn tool-pen ${tool === "pen" ? "tool-active" : ""}`}
+          onClick={() => setTool("pen")}
+          disabled={disabled}
+          title="Pen"
+        >
+          <PenIcon />
+        </button>
         <button
           className={`tool-icon-btn tool-fill ${tool === "fill" ? "tool-active" : ""}`}
           onClick={() => setTool(tool === "fill" ? "pen" : "fill")}

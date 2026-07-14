@@ -86,7 +86,7 @@ export function RoomScreen() {
           <span className="code-hint">{codeCopied ? "Copied!" : "Click the code to copy and share"}</span>
         </div>
         <div className="lobby-players">
-          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} />
+          <PlayerList players={room.players} hostUserId={room.hostUserId} meUserId={user.id} roomCode={room.code} />
         </div>
         <div className="lobby-footer">
           {isHost && (

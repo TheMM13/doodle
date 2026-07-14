@@ -390,14 +390,6 @@ button {
 .player-disconnected {
   opacity: 0.5;
 }
-.player-rank {
-  font-size: 11px;
-  font-weight: 700;
-  color: #9db3c2;
-  min-width: 14px;
-  flex-shrink: 0;
-  text-align: right;
-}
 .player-avatar {
   width: 28px;
   height: 28px;
@@ -720,8 +712,7 @@ button {
 .toolbar-tools {
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 .tool-icon-btn {
@@ -744,6 +735,16 @@ button {
   border-bottom-width: 2px;
 }
 /* Each tool gets its own accent so the group reads at a glance */
+.tool-pen {
+  background: #e6f6ee;
+  border-color: #b2dfc6;
+  color: #1a7a45;
+}
+.tool-pen.tool-active {
+  background: #1a7a45;
+  border-color: #125c33;
+  color: #fff;
+}
 .tool-fill {
   background: #f3ecff;
   border-color: #d9c6f7;
