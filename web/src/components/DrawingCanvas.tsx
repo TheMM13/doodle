@@ -252,7 +252,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, Props>(function Dra
     <canvas
       ref={canvasRef}
       className={`drawing-canvas ${isDrawer ? "drawing-canvas-active" : ""}`}
-      style={{ cursor: isDrawer ? (tool === "fill" ? "cell" : "crosshair") : "default" }}
+      style={{ cursor: isDrawer ? (tool === "fill" || tool === "eraser") ? "cell" : "crosshair" : "default" }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

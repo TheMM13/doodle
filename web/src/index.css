@@ -699,12 +699,12 @@ button {
   min-width: 0;
 }
 .swatch {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 7px;
-  border: 2px solid #fff;
+  border: 2px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  padding: 0;
+  padding: 0.2rem;
   flex-shrink: 0;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
@@ -1121,6 +1121,7 @@ button {
   .size-cycle-btn {
     width: 40px;
     height: 40px;
+    border-radius: 100%;
   }
   .tool-icon-btn {
     width: 38px;

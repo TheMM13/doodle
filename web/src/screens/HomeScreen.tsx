@@ -39,7 +39,7 @@ export function HomeScreen() {
         </span>
         <div>
           <h1 className="title">Hi, {user?.name}</h1>
-          <p className="status-line">{connected ? "🟢 connected" : "🔴 connecting..."}</p>
+          <p className="status-line">{connected ? "🟢 Connected" : "🔴 Connecting..."}</p>
         </div>
       </div>
 
