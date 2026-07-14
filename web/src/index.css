@@ -798,13 +798,9 @@ button {
 }
 .chat-messages {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 10px;
   text-align: left;
-  scrollbar-width: none;
-}
-.chat-messages::-webkit-scrollbar {
-  display: none;
 }
 .chat-line {
   font-size: 13px;
