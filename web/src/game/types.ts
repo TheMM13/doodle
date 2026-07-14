@@ -24,6 +24,7 @@ export interface PlayerView {
   name: string;
   avatar: Avatar;
   score: number;
+  roundScore: number;
   isConnected: boolean;
   isDrawing: boolean;
   hasGuessed: boolean;

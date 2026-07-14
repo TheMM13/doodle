@@ -23,16 +23,14 @@ export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setToo
 
   return (
     <div className={`toolbar ${disabled ? "toolbar-disabled" : ""}`}>
-      <button className="size-cycle-btn" onClick={cycleBrushSize} disabled={disabled} title="Brush size">
-        <span className="size-dot" style={{ width: brushSize, height: brushSize }} />
-      </button>
+      
       <div className="palette">
         {PALETTE.map((c) => (
           <button
             key={c}
             className={`swatch ${color === c && tool === "pen" ? "swatch-active" : ""}`}
             style={{ backgroundColor: c }}
-            onClick={() => { setColor(c); setTool("pen"); }}
+            onClick={() => setColor(c)}
             disabled={disabled}
           />
         ))}
@@ -46,6 +44,9 @@ export function Toolbar({ color, setColor, brushSize, setBrushSize, tool, setToo
         >
           <PenIcon />
         </button>
+        <button className="size-cycle-btn" onClick={cycleBrushSize} disabled={disabled} title="Brush size">
+        <span className="size-dot" style={{ width: brushSize, height: brushSize }} />
+      </button>
         <button
           className={`tool-icon-btn tool-fill ${tool === "fill" ? "tool-active" : ""}`}
           onClick={() => setTool(tool === "fill" ? "pen" : "fill")}

@@ -169,7 +169,7 @@ export function RoomScreen() {
       </div>
 
       <WordChoiceModal visible={room.isYourTurnToChoose} choices={room.wordChoices} endsAt={room.chooseEndsAt} onChoose={chooseWord} />
-      <ScoreboardOverlay visible={room.status === "round_end"} title="Round over!" word={room.word} scores={room.players} />
+      <ScoreboardOverlay visible={room.status === "round_end"} title="Round over!" word={room.word} scores={room.players} useRoundScore />
       <ScoreboardOverlay
         visible={room.status === "game_end"}
         title="Game over!"

@@ -2,6 +2,7 @@ interface ScoreRow {
   userId: string;
   name: string;
   score: number;
+  roundScore: number;
 }
 
 interface Props {
@@ -9,14 +10,15 @@ interface Props {
   title: string;
   word?: string | null;
   scores: ScoreRow[];
+  useRoundScore?: boolean;
   showPlayAgain?: boolean;
   onPlayAgain?: () => void;
   onLeave?: () => void;
 }
 
-export function ScoreboardOverlay({ visible, title, word, scores, showPlayAgain, onPlayAgain, onLeave }: Props) {
+export function ScoreboardOverlay({ visible, title, word, scores, useRoundScore, showPlayAgain, onPlayAgain, onLeave }: Props) {
   if (!visible) return null;
-  const sorted = [...scores].sort((a, b) => b.score - a.score);
+  const sorted = [...scores].sort((a, b) => useRoundScore ? b.roundScore - a.roundScore : b.score - a.score);
   return (
     <div className="modal-overlay">
       <div className="modal-card">
@@ -26,7 +28,9 @@ export function ScoreboardOverlay({ visible, title, word, scores, showPlayAgain,
           <div key={s.userId} className="scoreboard-row">
             <span className="scoreboard-rank">{i + 1}.</span>
             <span className="scoreboard-name">{s.name}</span>
-            <span className="scoreboard-score">{s.score}</span>
+            <span className="scoreboard-score">
+              {useRoundScore ? (s.roundScore > 0 ? `+${s.roundScore}` : "—") : s.score}
+            </span>
           </div>
         ))}
         {showPlayAgain && (

@@ -42,10 +42,10 @@ export function RoomSettingsModal({ visible, settings, onClose, onSave }: Props)
     <div className="modal-overlay">
       <div className="modal-card settings-card">
         <h2 className="modal-title">Room Settings</h2>
-        <Stepper label="Players" value={draft.maxPlayers} min={2} max={12} step={1} onChange={(v) => setDraft({ ...draft, maxPlayers: v })} />
-        <Stepper label="Draw time (s)" value={draft.drawTimeSec} min={30} max={240} step={10} onChange={(v) => setDraft({ ...draft, drawTimeSec: v })} />
-        <Stepper label="Rounds" value={draft.rounds} min={1} max={10} step={1} onChange={(v) => setDraft({ ...draft, rounds: v })} />
-        <Stepper label="Word count" value={draft.wordCount} min={1} max={3} step={1} onChange={(v) => setDraft({ ...draft, wordCount: v })} />
+        <Stepper label="Max Players" value={draft.maxPlayers} min={2} max={12} step={1} onChange={(v) => setDraft({ ...draft, maxPlayers: v })} />
+        <Stepper label="Draw time" value={draft.drawTimeSec} min={30} max={240} step={10} onChange={(v) => setDraft({ ...draft, drawTimeSec: v })} />
+        <Stepper label="Total Rounds" value={draft.rounds} min={1} max={10} step={1} onChange={(v) => setDraft({ ...draft, rounds: v })} />
+        <Stepper label="Minimum Word count" value={draft.wordCount} min={1} max={3} step={1} onChange={(v) => setDraft({ ...draft, wordCount: v })} />
         <Stepper label="Hints" value={draft.hints} min={0} max={4} step={1} onChange={(v) => setDraft({ ...draft, hints: v })} />
         <label className="settings-label">Game mode</label>
         <div className="game-mode-row">

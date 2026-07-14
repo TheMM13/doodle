@@ -11,18 +11,7 @@ interface Props {
 
 export function ChatGuessBox({ messages, onSend, disabledPlaceholder }: Props) {
   const [text, setText] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [atBottom, setAtBottom] = useState(true);
-
-  useEffect(() => {
-    if (atBottom) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages, atBottom]);
-
-  const handleScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 24);
-  };
+  
 
   const send = (e: FormEvent) => {
     e.preventDefault();
@@ -33,7 +22,7 @@ export function ChatGuessBox({ messages, onSend, disabledPlaceholder }: Props) {
 
   return (
     <div className="chat-box">
-      <div className="chat-messages" ref={scrollRef} onScroll={handleScroll}>
+      <div className="chat-messages" >
         {messages.map((m, i) => (
           <div key={i} className={`chat-line chat-kind-${m.kind}`}>
             {m.kind === "chat" ? <span className="chat-name">{m.name}: </span> : null}

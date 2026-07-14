@@ -697,7 +697,6 @@ button {
   border: 2px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   padding: 0.2rem;
-  flex-shrink: 0;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 .swatch:hover {
@@ -1117,8 +1116,8 @@ button {
     gap: 6px;
   }
   .swatch {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     border-radius: 6px;
     flex-shrink: 0;
   }
