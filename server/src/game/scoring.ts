@@ -6,7 +6,7 @@
 
 export function guesserPoints(timeLeftSec: number, drawTimeSec: number, guessOrderIndex: number): number {
   const timeFraction = Math.max(0, Math.min(1, timeLeftSec / drawTimeSec));
-  const base = 50 + Math.round(900 * timeFraction);
+  const base = 50 + Math.round(120 * timeFraction);
   const orderPenalty = 1 - Math.min(0.4, guessOrderIndex * 0.05);
   return Math.max(50, Math.round(base * orderPenalty));
 }

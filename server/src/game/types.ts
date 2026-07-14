@@ -35,6 +35,7 @@ export interface Player {
   name: string;
   avatar: Avatar;
   score: number;
+  roundScore: number;
   isConnected: boolean;
   disconnectedAt: number | null;
   joinOrder: number;

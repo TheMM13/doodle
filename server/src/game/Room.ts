@@ -74,6 +74,7 @@ export class Room extends EventEmitter {
       name,
       avatar,
       score: 0,
+      roundScore: 0,
       isConnected: true,
       disconnectedAt: null,
       joinOrder: this.nextJoinOrder++,
@@ -239,7 +240,7 @@ export class Room extends EventEmitter {
     this.revealedIndices.clear();
     this.hideLengthThisTurn =
       this.settings.gameMode === "hidden" || (this.settings.gameMode === "combination" && Math.random() < 0.5);
-    for (const p of this.players.values()) p.hasGuessedThisTurn = false;
+    for (const p of this.players.values()) { p.hasGuessedThisTurn = false; p.roundScore = 0; }
 
     this.wordChoices = pickWordChoices(
       this.settings.customWords,
@@ -355,9 +356,9 @@ export class Room extends EventEmitter {
       ).length;
       const timeLeft = this.turnEndsAt ? (this.turnEndsAt - Date.now()) / 1000 : 0;
       const points = guesserPoints(timeLeft, this.settings.drawTimeSec, orderIndex);
-      player.score += points;
+      player.score += points; player.roundScore += points;
       const drawer = this.currentDrawerId ? this.players.get(this.currentDrawerId) : null;
-      if (drawer) drawer.score += drawerPointsForGuess(points);
+      if (drawer) { const dp = drawerPointsForGuess(points); drawer.score += dp; drawer.roundScore += dp; }
 
       this.emit("chat", { userId, name: player.name, text: `${player.name} guessed the word!`, kind: "guessed" });
       this.emit("privateMessage", { toUserId: userId, kind: "correct", text: `You guessed it! +${points}`, points });
@@ -493,6 +494,7 @@ export class Room extends EventEmitter {
           name: p.name,
           avatar: p.avatar,
           score: p.score,
+          roundScore: p.roundScore,
           isConnected: p.isConnected,
           isDrawing: p.userId === this.currentDrawerId,
           hasGuessed: p.hasGuessedThisTurn,
