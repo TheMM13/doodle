@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, type FormEvent } from "react";
+import {useState, type FormEvent } from "react";
 import type { ChatMessage } from "../game/types";
 
 const MAX_LEN = 100;
