@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { type Avatar, AVATAR_COLORS } from "../game/types";
+import { type Avatar } from "../game/types";
 import { FACES } from "../game/faces";
 import { FaceIcon } from "./FaceIcon";
 
@@ -45,7 +45,6 @@ export function AvatarPicker({ avatar, onChange }: Props) {
 
         <div
           className="avatar-preview"
-          style={{ backgroundColor: avatar.color }}
         >
           <FaceIcon
             faceId={avatar.face}
@@ -67,26 +66,6 @@ export function AvatarPicker({ avatar, onChange }: Props) {
         {currentIndex + 1} / {FACES.length}
       </p>
 
-      <p className="avatar-label">Background Color</p>
-
-      <div className="avatar-row">
-        {AVATAR_COLORS.map((c) => (
-          <button
-            key={c}
-            type="button"
-            className={`avatar-swatch ${
-              avatar.color === c ? "avatar-swatch-active" : ""
-            }`}
-            style={{ backgroundColor: c }}
-            onClick={() =>
-              onChange({
-                ...avatar,
-                color: c,
-              })
-            }
-          />
-        ))}
-      </div>
     </div>
   );
 }

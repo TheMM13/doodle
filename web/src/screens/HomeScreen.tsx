@@ -34,7 +34,7 @@ export function HomeScreen() {
   return (
     <div className="screen home-screen">
       <div className="home-header">
-        <span className="home-avatar" style={{ backgroundColor: avatar.color }}>
+        <span className="home-avatar">
           <FaceIcon faceId={avatar.face} size={36} animate={true} />
         </span>
         <div>

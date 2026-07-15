@@ -70,7 +70,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnected(true);
       const lastCode = localStorage.getItem(LAST_ROOM_KEY);
       if (lastCode) {
-        socket.emit("room:join", { code: lastCode, avatar: { face: DEFAULT_FACE_ID, color: "#5aa9e6" } }, (ack: Ack) => {
+        socket.emit("room:join", { code: lastCode, avatar: { face: DEFAULT_FACE_ID } }, (ack: Ack) => {
           // If the room is gone (expired, or the server restarted), stop
           // showing its stale state and stop retrying it on every reconnect.
           if (!ack?.ok) {

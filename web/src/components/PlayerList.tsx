@@ -45,8 +45,8 @@ export function PlayerList({ players, hostUserId, meUserId, roomCode, onKickVote
                 .join(" ")}
               onClick={clickable ? handleClick : undefined}
             >
-              <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
-                <FaceIcon faceId={p.avatar.face} size={20} />
+              <span className="player-avatar">
+                <FaceIcon faceId={p.avatar.face} size={36} />
               </span>
               <span className="player-name">
                 {p.userId === hostUserId && <span className="player-crown"></span>}

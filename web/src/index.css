@@ -301,9 +301,9 @@ button {
 .avatar-swatch {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px #d8ecfb;
+  border-radius: 100%;
+  border: 3px solid #343030;
+  box-shadow: 0 0 0 2px #3b3d3e;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -419,9 +419,9 @@ button {
   opacity: 0.5;
 }
 .player-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  border-radius: 100%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -440,7 +440,7 @@ button {
   flex: 1;
   min-width: 0;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -455,7 +455,7 @@ button {
   font-weight: 600;
 }
 .player-pencil {
-  margin-left: 4px;
+  margin-left: 2px;
 }
 .player-away {
   font-size: 10px;

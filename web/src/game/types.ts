@@ -13,7 +13,6 @@ export interface RoomSettings {
 
 export interface Avatar {
   face: number;
-  color: string;
 }
 
 export type RoomStatus = "lobby" | "choosing_word" | "drawing" | "round_end" | "game_end";

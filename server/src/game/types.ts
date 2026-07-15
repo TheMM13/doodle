@@ -26,7 +26,6 @@ export type RoomStatus = "lobby" | "choosing_word" | "drawing" | "round_end" | "
 
 export interface Avatar {
   face: number;
-  color: string;
   hat?: number;
 }
 

@@ -13,7 +13,7 @@ function loadSavedAvatar(): Avatar {
   } catch {
     // ignore malformed storage
   }
-  return { face: DEFAULT_FACE_ID, color: "#5aa9e6" };
+  return { face: DEFAULT_FACE_ID };
 }
 
 export function LoginScreen() {

@@ -45,7 +45,6 @@ function sanitizeAvatar(raw: unknown): Avatar {
   return {
     face: Number.isInteger(a.face) ? Math.min(28, Math.max(1, a.face as number)) : 1,
     hat: Number.isInteger(a.hat) ? Math.min(5, Math.max(0, a.hat as number)) : 0,
-    color: typeof a.color === "string" && HEX_COLOR.test(a.color) ? a.color : "#5aa9e6",
   };
 }
 

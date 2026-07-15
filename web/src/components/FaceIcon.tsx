@@ -23,7 +23,7 @@ interface Props {
   className?: string;
 }
 
-export function FaceIcon({ faceId, size = 32, animate = false, className }: Props) {
+export function FaceIcon({ faceId, size = 32, animate = true, className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<AnimationItem | null>(null);
 
