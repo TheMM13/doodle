@@ -28,12 +28,15 @@ export function Reactions({ canReact, onReact, subscribe }: Props) {
   return (
     <>
       <div className="reactions-overlay">
-        {floating.map((f) => (
-          <span key={f.id} className={`floating-reaction floating-reaction-${f.kind}`} title={f.fromName}>
+      {floating.map((f) => (
+        <span key={f.id} className={`floating-reaction floating-reaction-${f.kind}`}>
+          <span className="floating-reaction-emoji">
             {f.kind === "like" ? "👍" : "👎"}
           </span>
-        ))}
-      </div>
+          <span className="floating-reaction-name">{f.fromName}</span>
+        </span>
+      ))}
+    </div>
       {canReact && (
         <div className="reaction-buttons">
           <button className="reaction-btn reaction-btn-like" onClick={() => onReact("like")} title="Like the drawing">
