@@ -14,7 +14,6 @@ export interface RoomSettings {
 export interface Avatar {
   face: number;
   color: string;
-  hat: number;
 }
 
 export type RoomStatus = "lobby" | "choosing_word" | "drawing" | "round_end" | "game_end";
@@ -68,10 +67,6 @@ export interface ChatMessage {
   ts: number;
 }
 
-export const FACE_COUNT = 8;
-export const HAT_COUNT = 6;
 export const AVATAR_COLORS = [
   "#e15b5b", "#5aa9e6", "#5cc46f", "#f2b632", "#a877e0", "#ef8b4d", "#4dc9c0", "#e069b0",
 ];
-export const AVATAR_FACES = ["🙂", "😀", "😎", "🥳", "🤓", "😜", "🙃", "🤠"];
-export const AVATAR_HATS = ["", "🎩", "👑", "🧢", "🎓", "🪖"];

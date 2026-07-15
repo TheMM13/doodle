@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { API_URL } from "../api/config";
 import { useAuth } from "../auth/AuthContext";
 import type { Avatar, ChatMessage, RoomSettings, RoomState, Stroke } from "../game/types";
+import { DEFAULT_FACE_ID } from "../game/faces";
 
 const LAST_ROOM_KEY = "doodle_last_room_code";
 
@@ -69,7 +70,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setConnected(true);
       const lastCode = localStorage.getItem(LAST_ROOM_KEY);
       if (lastCode) {
-        socket.emit("room:join", { code: lastCode, avatar: { face: 0, color: "#5aa9e6", hat: 0 } }, (ack: Ack) => {
+        socket.emit("room:join", { code: lastCode, avatar: { face: DEFAULT_FACE_ID, color: "#5aa9e6" } }, (ack: Ack) => {
           // If the room is gone (expired, or the server restarted), stop
           // showing its stale state and stop retrying it on every reconnect.
           if (!ack?.ok) {

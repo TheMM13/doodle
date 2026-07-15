@@ -3,7 +3,7 @@ import { API_URL } from "./config";
 export interface AuthUser {
   id: string;
   name: string;
-  avatar: { face: number; color: string; hat: number };
+  avatar: { face: number; color: string };
 }
 
 export interface AuthResponse {

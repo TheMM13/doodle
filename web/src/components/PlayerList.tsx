@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { type PlayerView, AVATAR_FACES, AVATAR_HATS, FACE_COUNT, HAT_COUNT } from "../game/types";
+import { type PlayerView } from "../game/types";
+import { FaceIcon } from "./FaceIcon";
 
 interface Props {
   players: PlayerView[];
@@ -45,12 +46,11 @@ export function PlayerList({ players, hostUserId, meUserId, roomCode, onKickVote
               onClick={clickable ? handleClick : undefined}
             >
               <span className="player-avatar" style={{ backgroundColor: p.avatar.color }}>
-                <span className="player-avatar-face">{AVATAR_FACES[p.avatar.face % FACE_COUNT]}</span>
-                {p.avatar.hat > 0 && <span className="player-avatar-hat">{AVATAR_HATS[p.avatar.hat % HAT_COUNT]}</span>}
+                <FaceIcon faceId={p.avatar.face} size={20} />
               </span>
               <span className="player-name">
-                {p.userId === hostUserId && <span className="player-crown">★</span>}
-                {p.name}
+                {p.userId === hostUserId && <span className="player-crown"></span>}
+                {p.name}<br />
                 {isMe && <span className="player-you"> (you)</span>}
                 {p.isDrawing && <span className="player-pencil"> ✏️</span>}
                 {!p.isConnected && <span className="player-away"> away</span>}

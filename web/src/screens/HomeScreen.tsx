@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useSocket } from "../socket/SocketContext";
-import { AVATAR_FACES, AVATAR_HATS, FACE_COUNT, HAT_COUNT } from "../game/types";
+import { FaceIcon } from "../components/FaceIcon";
+import { DEFAULT_FACE_ID } from "../game/faces";
 
 export function HomeScreen() {
   const { user, logout } = useAuth();
   const { connected, createRoom, joinRoom } = useSocket();
-  const avatar = user?.avatar ?? { face: 0, color: "#5aa9e6", hat: 0 };
+  const avatar = user?.avatar ?? { face: DEFAULT_FACE_ID, color: "#5aa9e6" };
   const [code, setCode] = useState("");
   const [isPrivate, setIsPrivate] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -34,8 +35,7 @@ export function HomeScreen() {
     <div className="screen home-screen">
       <div className="home-header">
         <span className="home-avatar" style={{ backgroundColor: avatar.color }}>
-          <span className="home-avatar-face">{AVATAR_FACES[avatar.face % FACE_COUNT]}</span>
-          {avatar.hat > 0 && <span className="home-avatar-hat">{AVATAR_HATS[avatar.hat % HAT_COUNT]}</span>}
+          <FaceIcon faceId={avatar.face} size={36} animate={true} />
         </span>
         <div>
           <h1 className="title">Hi, {user?.name}</h1>

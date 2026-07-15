@@ -30,8 +30,8 @@ function allowRequest(ip: string): boolean {
 
 const avatarSchema = z
   .object({
-    face: z.number().int().min(0).max(7),
-    hat: z.number().int().min(0).max(5),
+    face: z.number().int().min(1).max(28),
+    hat: z.number().int().min(0).max(5).optional(),
     color: z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
   })
   .optional();

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { AvatarPicker } from "../components/AvatarPicker";
 import type { Avatar } from "../game/types";
+import { DEFAULT_FACE_ID } from "../game/faces";
 
 const AVATAR_KEY = "doodle_last_avatar";
 
@@ -12,7 +13,7 @@ function loadSavedAvatar(): Avatar {
   } catch {
     // ignore malformed storage
   }
-  return { face: 0, color: "#5aa9e6", hat: 0 };
+  return { face: DEFAULT_FACE_ID, color: "#5aa9e6" };
 }
 
 export function LoginScreen() {
